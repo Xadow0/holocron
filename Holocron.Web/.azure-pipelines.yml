@@ -1,7 +1,7 @@
 trigger:
   branches:
     include:
-      - Page-Init  # Ajusta el nombre de la rama si es necesario
+      - master  # Ajusta el nombre de la rama si es necesario
 
 pool:
   vmImage: 'ubuntu-latest'
