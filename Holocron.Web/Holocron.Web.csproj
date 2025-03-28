@@ -13,10 +13,4 @@
     <PackageReference Include="Vite.AspNetCore" Version="2.4.0" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="src\components\" />
-    <Folder Include="src\types\" />
-    <Folder Include="src\services\" />
-  </ItemGroup>
-
 </Project>
