@@ -14,6 +14,11 @@ const useStyles = createUseStyles({
     gap: '10px',
     width: '300px'
   },
+  buttonContainer: {
+    display: 'flex',
+    gap: '10px',
+    justifyContent: 'center'
+  },
   table: {
     width: '100%',
     borderCollapse: 'collapse'
@@ -31,11 +36,6 @@ const useStyles = createUseStyles({
     padding: '10px',
     border: '1px solid #ccc',
     borderRadius: '5px'
-  },
-  checkboxContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '10px'
   },
   button: {
     padding: '10px 20px',
@@ -62,7 +62,29 @@ const Search: React.FC = () => {
   const classes = useStyles()
   const [name, setName] = useState('')
   const [species, setSpecies] = useState('')
-  const [isRebel, setIsRebel] = useState(false)
+  const [rebels, setRebels] = useState<any[]>([])
+  const [searchResults, setSearchResults] = useState<any[]>([])
+
+  // Función para consultar los rebeldes (simulación de la llamada API)
+  const handleConsultRebels = () => {
+    const rebelList = [
+      { id: 1, name: 'Luke Skywalker', species: 'Humano', isRebel: true, origin: 'Tatooine' },
+      { id: 2, name: 'Leia Organa', species: 'Humano', isRebel: true, origin: 'Alderaan' },
+      { id: 3, name: 'Han Solo', species: 'Humano', isRebel: true, origin: 'Corellia' }
+    ]
+    setRebels(rebelList)
+    setSearchResults([]) // Limpiar resultados de búsqueda si se consulta rebeldes
+  }
+
+  // Función para buscar por nombre y especie
+  const handleSearch = () => {
+    // Aquí puedes agregar la lógica de búsqueda real, por ejemplo, filtrando por nombre o especie
+    const filteredResults = [
+      { id: 1, name: 'Han Solo', species: 'Humano', isRebel: true, origin: 'Corellia' }
+    ]
+    setSearchResults(filteredResults)
+    setRebels([]) // Limpiar rebeldes si se realiza una búsqueda
+  }
 
   return (
     <div className={classes.container}>
@@ -82,17 +104,22 @@ const Search: React.FC = () => {
           value={species}
           onChange={e => setSpecies(e.target.value)}
         />
-        <div className={classes.checkboxContainer}>
-          <label>
-            <input
-              type="checkbox"
-              checked={isRebel}
-              onChange={e => setIsRebel(e.target.checked)}
-            />
-                        ¿Sospechoso de ser rebelde?
-          </label>
+        <div className={classes.buttonContainer}>
+          <button
+            type="button"
+            className={classes.button}
+            onClick={handleSearch}
+          >
+                        Buscar
+          </button>
+          <button
+            type="button"
+            className={classes.button}
+            onClick={handleConsultRebels}
+          >
+                        Consultar Rebeldes
+          </button>
         </div>
-        <button className={classes.button}>Buscar</button>
       </form>
       <div className={classes.resultContainer}>
         <span className={classes.resultLabel}>Resultado</span>
@@ -107,13 +134,31 @@ const Search: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td className={classes.td}>-</td>
-              <td className={classes.td}>-</td>
-              <td className={classes.td}>-</td>
-              <td className={classes.td}>-</td>
-              <td className={classes.td}>-</td>
-            </tr>
+            {rebels.length > 0 ? (
+              rebels.map(rebel => (
+                <tr key={rebel.id}>
+                  <td className={classes.td}>{rebel.id}</td>
+                  <td className={classes.td}>{rebel.name}</td>
+                  <td className={classes.td}>{rebel.species}</td>
+                  <td className={classes.td}>{rebel.isRebel ? 'Si' : 'No'}</td>
+                  <td className={classes.td}>{rebel.origin}</td>
+                </tr>
+              ))
+            ) : searchResults.length > 0 ? (
+              searchResults.map(result => (
+                <tr key={result.id}>
+                  <td className={classes.td}>{result.id}</td>
+                  <td className={classes.td}>{result.name}</td>
+                  <td className={classes.td}>{result.species}</td>
+                  <td className={classes.td}>{result.isRebel ? 'Si' : 'No'}</td>
+                  <td className={classes.td}>{result.origin}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td className={classes.td} colSpan={5}>No hay resultados para mostrar</td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
@@ -122,4 +167,3 @@ const Search: React.FC = () => {
 }
 
 export default Search
-
