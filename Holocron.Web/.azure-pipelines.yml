@@ -8,8 +8,8 @@ pool:
 
 variables:
   NODE_VERSION: '18'  # Ajusta según la versión de Node.js en tu App Service
-  AZURE_WEBAPP_NAME: 'holocron-web-app'  # Nombre del App Service en Azure
-  AZURE_SUBSCRIPTION: 'your-azure-subscription-id'  # ID de tu suscripción en Azure
+  AZURE_WEBAPP_NAME: 'lsanwebapp01'  # Nombre del App Service en Azure
+  AZURE_SUBSCRIPTION: 'AzureConnection-Holocron'  # ID de tu suscripción en Azure
 
 steps:
   - task: UseNode@1
@@ -17,18 +17,20 @@ steps:
       version: $(NODE_VERSION)
 
   - script: |
+      cd Holocron.Web
       echo "Instalando dependencias..."
       npm install
     displayName: 'Instalar dependencias'
 
   - script: |
+      cd Holocron.Web
       echo "Construyendo la aplicación..."
       npm run build
     displayName: 'Compilar aplicación'
 
   - task: ArchiveFiles@2
     inputs:
-      rootFolderOrFile: 'dist'
+      rootFolderOrFile: 'Holocron.Web/dist'
       includeRootFolder: false
       archiveFile: '$(Build.ArtifactStagingDirectory)/app.zip'
     displayName: 'Empaquetar la aplicación'
@@ -41,8 +43,8 @@ steps:
 
   - task: AzureWebApp@1
     inputs:
-      azureSubscription: 'AzureConnection-Holocron'
-      appName: 'lsanwebapp01'
+      azureSubscription: $(AZURE_SUBSCRIPTION)
+      appName: $(AZURE_WEBAPP_NAME)
       appType: webApp
       package: $(Build.ArtifactStagingDirectory)/app.zip
     displayName: 'Desplegar en Azure App Service'
