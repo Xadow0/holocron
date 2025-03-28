@@ -26,7 +26,7 @@ const Sidebar: React.FC = () => {
 
   return (
     <aside className={classes.sidebar}>
-      <h2>Holocron</h2>
+      <h2>Proyecto Holocron</h2>
       <nav>
         <Link to="/" className={classes.navLink}>Inicio</Link>
         <Link to="/inhabitants" className={classes.navLink}>Habitantes</Link>

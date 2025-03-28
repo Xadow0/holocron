@@ -1,7 +1,9 @@
+// Home.tsx
 import React from 'react'
 import { createUseStyles } from 'react-jss'
 import { useSelector } from 'react-redux'
 import { RootState } from '../redux/store'
+import { useNavigate } from 'react-router-dom' // Importa useNavigate
 
 const useStyles = createUseStyles({
   container: {
@@ -47,6 +49,11 @@ const useStyles = createUseStyles({
 const Home: React.FC = () => {
   const classes = useStyles()
   const { list } = useSelector((state: RootState) => state.inhabitants)
+  const navigate = useNavigate() // Inicializa el hook de navegación
+
+  const handleAddClick = () => {
+    navigate('/add-inhabitant') // Redirige a la página de agregar habitante
+  }
 
   return (
     <div className={classes.container}>
@@ -76,7 +83,7 @@ const Home: React.FC = () => {
         </table>
       </div>
       <div className={classes.buttonContainer}>
-        <button className={classes.button}>Agregar</button>
+        <button className={classes.button} onClick={handleAddClick}>Agregar</button> {/* Llama a handleAddClick */}
         <button className={classes.button}>Eliminar</button>
         <button className={classes.button}>Editar</button>
       </div>
