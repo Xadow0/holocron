@@ -1,15 +1,15 @@
 trigger:
   branches:
     include:
-      - master  # Ajusta el nombre de la rama si es necesario
+      - master  # Branch Name
 
 pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  NODE_VERSION: '18'  # Ajusta según la versión de Node.js en tu App Service
-  AZURE_WEBAPP_NAME: 'lsanwebapp01'  # Nombre del App Service en Azure
-  AZURE_SUBSCRIPTION: 'AzureConnection-Holocron'  # ID de tu suscripción en Azure
+  NODE_VERSION: '18'  
+  AZURE_WEBAPP_NAME: 'lsanwebapp01'  #  Azure App Service name
+  AZURE_SUBSCRIPTION: 'AzureConnection-Holocron'  # Azure Suscription ID
 
 steps:
   - task: UseNode@1
