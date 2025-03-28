@@ -4,7 +4,7 @@ import { ThemeProvider } from 'react-jss'
 
 import MainLayout from './components/Layout/MainLayout'
 import Home from './pages/Home'
-import Inhabitants from './pages/Inhabitants'
+import Inhabitants from './pages/Search'
 
 const theme = {
   primaryColor: '#007bff',

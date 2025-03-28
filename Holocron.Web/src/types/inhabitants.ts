@@ -1,5 +1,9 @@
 export interface Inhabitant {
     id: number
     name: string
-    // Añade más campos según necesites
+    species: string
+    origin: string
+    IsSuspectedRebel: boolean
+    CreatedAt : Date
+    
 }
