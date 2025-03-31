@@ -1,9 +1,9 @@
-// Home.tsx
-import React from 'react'
+import React, { useEffect } from 'react'
 import { createUseStyles } from 'react-jss'
-import { useSelector } from 'react-redux'
-import { RootState } from '../redux/store'
-import { useNavigate } from 'react-router-dom' // Importa useNavigate
+import { useSelector, useDispatch } from 'react-redux'
+import { RootState, AppDispatch } from '../redux/store'
+import { fetchInhabitants } from '../redux/slices/inhabitantsSlice'
+import { useNavigate } from 'react-router-dom'
 
 const useStyles = createUseStyles({
   container: {
@@ -48,16 +48,25 @@ const useStyles = createUseStyles({
 
 const Home: React.FC = () => {
   const classes = useStyles()
-  const { list } = useSelector((state: RootState) => state.inhabitants)
-  const navigate = useNavigate() // Inicializa el hook de navegación
+  const dispatch = useDispatch<AppDispatch>()
+  const { list, loading, error } = useSelector((state: RootState) => state.inhabitants)
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    dispatch(fetchInhabitants()) 
+  }, [dispatch])
 
   const handleAddClick = () => {
-    navigate('/add-inhabitant') // Redirige a la página de agregar habitante
+    navigate('/add-inhabitant')
   }
 
   return (
     <div className={classes.container}>
       <h1>Lista de habitantes de Tatooine</h1>
+
+      {loading && <p>Cargando habitantes...</p>}
+      {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+
       <div className={classes.listContainer}>
         <table className={classes.table}>
           <thead>
@@ -82,8 +91,9 @@ const Home: React.FC = () => {
           </tbody>
         </table>
       </div>
+
       <div className={classes.buttonContainer}>
-        <button className={classes.button} onClick={handleAddClick}>Agregar</button> {/* Llama a handleAddClick */}
+        <button className={classes.button} onClick={handleAddClick}>Agregar</button>
         <button className={classes.button}>Eliminar</button>
         <button className={classes.button}>Editar</button>
       </div>
@@ -92,3 +102,4 @@ const Home: React.FC = () => {
 }
 
 export default Home
+

@@ -1,4 +1,3 @@
-// AddInhabitant.tsx
 import React, { useState } from 'react'
 import { createUseStyles } from 'react-jss'
 
@@ -49,18 +48,16 @@ const useStyles = createUseStyles({
 const AddInhabitant: React.FC = () => {
   const classes = useStyles()
 
-  // Estados para los campos
   const [name, setName] = useState('')
   const [species, setSpecies] = useState('')
   const [origin, setOrigin] = useState('')
   const [isRebel, setIsRebel] = useState(false)
 
-  // Validación para habilitar o deshabilitar el botón
+  // validation to activate the button
   const isFormValid = name.trim() !== '' && species.trim() !== ''
 
-  // Función para manejar el envío del formulario
   const handleSave = () => {
-    // Aquí puedes agregar la lógica para guardar el nuevo habitante
+    // Code to save the inhabitant
     console.log({ name, species, origin, isRebel })
   }
 
@@ -68,7 +65,6 @@ const AddInhabitant: React.FC = () => {
     <div className={classes.container}>
       <h1>Agregar Nuevo Habitante</h1>
 
-      {/* Campo para el nombre */}
       <div>
         <input
           className={classes.input}
@@ -80,7 +76,6 @@ const AddInhabitant: React.FC = () => {
         <span className={classes.requiredAsterisk}>*</span>
       </div>
 
-      {/* Campo para la especie */}
       <div>
         <input
           className={classes.input}
@@ -92,7 +87,6 @@ const AddInhabitant: React.FC = () => {
         <span className={classes.requiredAsterisk}>*</span>
       </div>
 
-      {/* Campo para el origen */}
       <input
         className={classes.input}
         type="text"
@@ -101,7 +95,6 @@ const AddInhabitant: React.FC = () => {
         onChange={(e) => setOrigin(e.target.value)}
       />
 
-      {/* Checkbox para "Rebelde" */}
       <label>
         <input
           type="checkbox"
@@ -111,14 +104,14 @@ const AddInhabitant: React.FC = () => {
                 Rebelde
       </label>
 
-      {/* Texto que aparece cuando el formulario es inválido */}
+      {/* Text when the form is invalid */}
       {!isFormValid && (
         <div className={classes.errorText}>
                     Los campos <strong>Nombre</strong> y <strong>Especie</strong> son obligatorios
         </div>
       )}
 
-      {/* Botón de Guardar, deshabilitado si no es válido */}
+      {/* Disable save button */}
       <button
         className={classes.button}
         onClick={handleSave}

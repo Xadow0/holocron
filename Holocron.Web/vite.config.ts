@@ -7,8 +7,8 @@ export default defineConfig({
     port: 3000
   },
   build: {
-    outDir: 'dist', // Asegura que el directorio de salida sea "dist"
-    emptyOutDir: true, // Limpia la carpeta antes de cada build
+    outDir: 'dist', 
+    emptyOutDir: true, 
   },
-  base: './' // Esto ayuda a evitar problemas con rutas relativas en Azure
+  base: './' 
 })
