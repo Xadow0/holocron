@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { createUseStyles } from 'react-jss'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '../redux/store'
-import { fetchSearchResults } from '../redux/slices/inhabitantsSlice'
+import { fetchSearchResults, fetchRebels } from '../redux/slices/inhabitantsSlice'
 
 const useStyles = createUseStyles({
   container: {
@@ -61,6 +61,9 @@ const useStyles = createUseStyles({
   }
 })
 
+
+
+
 const Search: React.FC = () => {
   const classes = useStyles()
   const dispatch = useDispatch<AppDispatch>()
@@ -72,6 +75,10 @@ const Search: React.FC = () => {
     if (query) {
       dispatch(fetchSearchResults(query))
     }
+  }
+
+  const handleShowRebels = () => {
+    dispatch(fetchRebels())
   }
 
   return (
@@ -94,6 +101,14 @@ const Search: React.FC = () => {
           >
             {loading ? 'Buscando...' : 'Buscar'}
           </button>
+          <button
+            type="button"
+            className={classes.button}
+            onClick={handleShowRebels}
+            disabled={loading}
+          >
+            {loading ? 'Cargando Rebeldes...' : 'Mostrar Rebeldes'}
+          </button>
         </div>
       </form>
       <div className={classes.resultContainer}>
@@ -115,7 +130,7 @@ const Search: React.FC = () => {
                   <td className={classes.td}>{result.id}</td>
                   <td className={classes.td}>{result.name}</td>
                   <td className={classes.td}>{result.species}</td>
-                  <td className={classes.td}>{result.IsSuspectedRebel ? 'Sí' : 'No'}</td>
+                  <td className={classes.td}>{result.isSuspectedRebel ? 'Si' : 'No'}</td>
                   <td className={classes.td}>{result.origin || 'Desconocido'}</td>
                 </tr>
               ))

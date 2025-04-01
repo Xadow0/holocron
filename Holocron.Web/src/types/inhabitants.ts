@@ -3,7 +3,7 @@ export interface Inhabitant {
     name: string
     species: string
     origin: string
-    IsSuspectedRebel: boolean
+    isSuspectedRebel: boolean
     CreatedAt : Date
     
 }

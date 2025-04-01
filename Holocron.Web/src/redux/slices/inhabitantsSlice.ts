@@ -51,6 +51,19 @@ export const createInhabitant = createAsyncThunk(
   }
 )
 
+export const fetchRebels = createAsyncThunk(
+  'inhabitants/fetchRebels',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await fetch('http://localhost:5149/api/inhabitants/rebels')  // URL de los rebeldes
+      if (!response.ok) throw new Error('Error al obtener los rebeldes')
+      return await response.json() as Inhabitant[]  // Asumimos que la respuesta será un array de habitantes
+    } catch (error: any) {
+      return rejectWithValue(error.message)
+    }
+  }
+)
+
 export const fetchInhabitants = createAsyncThunk(
   'inhabitants/fetchInhabitants',
   async (_, { rejectWithValue }) => {
@@ -111,7 +124,7 @@ const inhabitantsSlice = createSlice({
         state.list = state.list.filter(inhabitant => inhabitant.id !== action.payload)
       })
       .addCase(createInhabitant.fulfilled, (state, action) => {
-        state.list.push(action.payload) // Agregar el nuevo habitante a la lista
+        state.list.push(action.payload) 
       })
       .addCase(createInhabitant.rejected, (state, action) => {
         state.error = action.payload as string
@@ -125,6 +138,18 @@ const inhabitantsSlice = createSlice({
         state.searchResults = action.payload
       })
       .addCase(fetchSearchResults.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.payload as string
+      })
+      .addCase(fetchRebels.pending, (state) => {
+        state.loading = true
+        state.error = null
+      })
+      .addCase(fetchRebels.fulfilled, (state, action) => {
+        state.loading = false
+        state.searchResults = action.payload 
+      })
+      .addCase(fetchRebels.rejected, (state, action) => {
         state.loading = false
         state.error = action.payload as string
       })

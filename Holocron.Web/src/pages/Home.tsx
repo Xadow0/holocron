@@ -110,7 +110,7 @@ const Home: React.FC = () => {
                 <td className={classes.td}>{inhabitant.id}</td>
                 <td className={classes.td}>{inhabitant.name}</td>
                 <td className={classes.td}>{inhabitant.species}</td>
-                <td className={classes.td}>{inhabitant.IsSuspectedRebel ? 'Sí' : 'No'}</td>
+                <td className={classes.td}>{inhabitant.isSuspectedRebel ? 'Si' : 'No'}</td>
                 <td className={classes.td}>{inhabitant.origin}</td>
               </tr>
             ))}
