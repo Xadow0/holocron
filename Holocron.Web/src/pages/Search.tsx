@@ -1,5 +1,8 @@
 import React, { useState } from 'react'
 import { createUseStyles } from 'react-jss'
+import { useDispatch, useSelector } from 'react-redux'
+import { AppDispatch, RootState } from '../redux/store'
+import { fetchSearchResults } from '../redux/slices/inhabitantsSlice'
 
 const useStyles = createUseStyles({
   container: {
@@ -60,64 +63,36 @@ const useStyles = createUseStyles({
 
 const Search: React.FC = () => {
   const classes = useStyles()
+  const dispatch = useDispatch<AppDispatch>()
   const [name, setName] = useState('')
-  const [species, setSpecies] = useState('')
-  const [rebels, setRebels] = useState<any[]>([])
-  const [searchResults, setSearchResults] = useState<any[]>([])
+  const { searchResults, loading } = useSelector((state: RootState) => state.inhabitants)
 
-  // Función para consultar los rebeldes (simulación de la llamada API)
-  const handleConsultRebels = () => {
-    const rebelList = [
-      { id: 1, name: 'Luke Skywalker', species: 'Humano', isRebel: true, origin: 'Tatooine' },
-      { id: 2, name: 'Leia Organa', species: 'Humano', isRebel: true, origin: 'Alderaan' },
-      { id: 3, name: 'Han Solo', species: 'Humano', isRebel: true, origin: 'Corellia' }
-    ]
-    setRebels(rebelList)
-    setSearchResults([]) // Limpiar resultados de búsqueda si se consulta rebeldes
-  }
-
-  // Función para buscar por nombre y especie
-  const handleSearch = () => {
-    // Aquí puedes agregar la lógica de búsqueda real, por ejemplo, filtrando por nombre o especie
-    const filteredResults = [
-      { id: 1, name: 'Han Solo', species: 'Humano', isRebel: true, origin: 'Corellia' }
-    ]
-    setSearchResults(filteredResults)
-    setRebels([]) // Limpiar rebeldes si se realiza una búsqueda
+  const handleSearch = async () => {
+    const query = name.trim()
+    if (query) {
+      dispatch(fetchSearchResults(query))
+    }
   }
 
   return (
     <div className={classes.container}>
       <h1>Buscar Habitantes</h1>
-      <form className={classes.form}>
+      <form className={classes.form} onSubmit={(e) => e.preventDefault()}>
         <input
           className={classes.input}
           type="text"
           placeholder="Nombre"
           value={name}
-          onChange={e => setName(e.target.value)}
-        />
-        <input
-          className={classes.input}
-          type="text"
-          placeholder="Especie"
-          value={species}
-          onChange={e => setSpecies(e.target.value)}
+          onChange={(e) => setName(e.target.value)}
         />
         <div className={classes.buttonContainer}>
           <button
             type="button"
             className={classes.button}
             onClick={handleSearch}
+            disabled={loading}
           >
-                        Buscar
-          </button>
-          <button
-            type="button"
-            className={classes.button}
-            onClick={handleConsultRebels}
-          >
-                        Consultar Rebeldes
+            {loading ? 'Buscando...' : 'Buscar'}
           </button>
         </div>
       </form>
@@ -134,29 +109,21 @@ const Search: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {rebels.length > 0 ? (
-              rebels.map(rebel => (
-                <tr key={rebel.id}>
-                  <td className={classes.td}>{rebel.id}</td>
-                  <td className={classes.td}>{rebel.name}</td>
-                  <td className={classes.td}>{rebel.species}</td>
-                  <td className={classes.td}>{rebel.isRebel ? 'Si' : 'No'}</td>
-                  <td className={classes.td}>{rebel.origin}</td>
-                </tr>
-              ))
-            ) : searchResults.length > 0 ? (
-              searchResults.map(result => (
+            {searchResults.length > 0 ? (
+              searchResults.map((result) => (
                 <tr key={result.id}>
                   <td className={classes.td}>{result.id}</td>
                   <td className={classes.td}>{result.name}</td>
                   <td className={classes.td}>{result.species}</td>
-                  <td className={classes.td}>{result.isRebel ? 'Si' : 'No'}</td>
-                  <td className={classes.td}>{result.origin}</td>
+                  <td className={classes.td}>{result.IsSuspectedRebel ? 'Sí' : 'No'}</td>
+                  <td className={classes.td}>{result.origin || 'Desconocido'}</td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td className={classes.td} colSpan={5}>No hay resultados para mostrar</td>
+                <td className={classes.td} colSpan={5}>
+                                    No hay resultados para mostrar
+                </td>
               </tr>
             )}
           </tbody>
@@ -167,3 +134,4 @@ const Search: React.FC = () => {
 }
 
 export default Search
+

@@ -1,5 +1,9 @@
 import React, { useState } from 'react'
 import { createUseStyles } from 'react-jss'
+import { useDispatch } from 'react-redux'
+import { AppDispatch } from '../redux/store'
+import { createInhabitant } from '../redux/slices/inhabitantsSlice'
+import toastr from '../utils/toastr'
 
 const useStyles = createUseStyles({
   container: {
@@ -47,6 +51,7 @@ const useStyles = createUseStyles({
 
 const AddInhabitant: React.FC = () => {
   const classes = useStyles()
+  const dispatch = useDispatch<AppDispatch>()
 
   const [name, setName] = useState('')
   const [species, setSpecies] = useState('')
@@ -56,9 +61,17 @@ const AddInhabitant: React.FC = () => {
   // validation to activate the button
   const isFormValid = name.trim() !== '' && species.trim() !== ''
 
-  const handleSave = () => {
-    // Code to save the inhabitant
-    console.log({ name, species, origin, isRebel })
+  const handleSave = async () => {
+    try {
+      await dispatch(createInhabitant({ name, species, origin, isSuspectedRebel: isRebel })).unwrap()
+      toastr.success('Habitante creado exitosamente')
+      setName('')
+      setSpecies('')
+      setOrigin('')
+      setIsRebel(false)
+    } catch (error) {
+      toastr.error('Error al crear el habitante')
+    }
   }
 
   return (
