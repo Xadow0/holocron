@@ -2,6 +2,7 @@ import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit'
 import { Inhabitant } from '../../types/inhabitants'
 
 const API_URL = 'http://localhost:5149/api/inhabitants'
+
 interface InhabitantsState {
     list: Inhabitant[]
     searchResults: Inhabitant[]
@@ -23,7 +24,6 @@ export const fetchSearchResults = createAsyncThunk(
     }
   }
 )
-
 
 const initialState: InhabitantsState = {
   list: [],
@@ -64,6 +64,23 @@ export const fetchRebels = createAsyncThunk(
   }
 )
 
+export const updateInhabitant = createAsyncThunk(
+  'inhabitants/updateInhabitant',
+  async ({ id, inhabitantData }: { id: string, inhabitantData: { name: string; species: string; origin: string; isSuspectedRebel: boolean } }, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`${API_URL}/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(inhabitantData),
+      })
+      if (!response.ok) throw new Error('Error al actualizar el habitante')
+      return await response.json()
+    } catch (error: any) {
+      return rejectWithValue(error.message)
+    }
+  }
+)
+
 export const fetchInhabitants = createAsyncThunk(
   'inhabitants/fetchInhabitants',
   async (_, { rejectWithValue }) => {
@@ -79,7 +96,7 @@ export const fetchInhabitants = createAsyncThunk(
 
 export const deleteInhabitant = createAsyncThunk(
   'inhabitants/deleteInhabitant',
-  async (id: number, { rejectWithValue }) => {
+  async (id: string, { rejectWithValue }) => {
     try {
       await fetch(`${API_URL}/${id}`, { method: 'DELETE' })
       return id
@@ -124,7 +141,7 @@ const inhabitantsSlice = createSlice({
         state.list = state.list.filter(inhabitant => inhabitant.id !== action.payload)
       })
       .addCase(createInhabitant.fulfilled, (state, action) => {
-        state.list.push(action.payload) 
+        state.list.push(action.payload)
       })
       .addCase(createInhabitant.rejected, (state, action) => {
         state.error = action.payload as string
@@ -147,10 +164,20 @@ const inhabitantsSlice = createSlice({
       })
       .addCase(fetchRebels.fulfilled, (state, action) => {
         state.loading = false
-        state.searchResults = action.payload 
+        state.searchResults = action.payload
       })
       .addCase(fetchRebels.rejected, (state, action) => {
         state.loading = false
+        state.error = action.payload as string
+      })
+      .addCase(updateInhabitant.fulfilled, (state, action) => {
+        const updatedInhabitant = action.payload
+        const index = state.list.findIndex(inhabitant => inhabitant.id === updatedInhabitant.id)
+        if (index !== -1) {
+          state.list[index] = updatedInhabitant
+        }
+      })
+      .addCase(updateInhabitant.rejected, (state, action) => {
         state.error = action.payload as string
       })
   }

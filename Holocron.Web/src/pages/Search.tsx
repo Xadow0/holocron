@@ -88,7 +88,7 @@ const Search: React.FC = () => {
         <input
           className={classes.input}
           type="text"
-          placeholder="Nombre"
+          placeholder="Nombre o especie"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />

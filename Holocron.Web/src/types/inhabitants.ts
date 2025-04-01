@@ -1,5 +1,5 @@
 export interface Inhabitant {
-    id: number
+    id: string
     name: string
     species: string
     origin: string

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { createUseStyles } from 'react-jss'
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState, AppDispatch } from '../redux/store'
-import { fetchInhabitants, deleteInhabitant } from '../redux/slices/inhabitantsSlice'
+import { fetchInhabitants, deleteInhabitant, updateInhabitant, createInhabitant } from '../redux/slices/inhabitantsSlice'
 import { useNavigate } from 'react-router-dom'
 import toastr from '../utils/toastr'
 
@@ -47,6 +47,20 @@ const useStyles = createUseStyles({
   },
   selectedRow: {
     backgroundColor: '#f0f0f0'
+  },
+  formContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginTop: '20px'
+  },
+  input: {
+    margin: '5px',
+    padding: '8px',
+    width: '200px'
+  },
+  checkbox: {
+    margin: '5px'
   }
 })
 
@@ -55,7 +69,11 @@ const Home: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>()
   const { list, loading, error } = useSelector((state: RootState) => state.inhabitants)
   const navigate = useNavigate()
-  const [selectedId, setSelectedId] = useState<number | null>(null)
+  const [selectedId, setSelectedId] = useState<string | null>(null) // Cambiado a GUID (string)
+  const [name, setName] = useState('')
+  const [species, setSpecies] = useState('')
+  const [origin, setOrigin] = useState('')
+  const [isRebel, setIsRebel] = useState(false)
 
   useEffect(() => {
     dispatch(fetchInhabitants())
@@ -65,21 +83,70 @@ const Home: React.FC = () => {
     navigate('/add-inhabitant')
   }
 
-  const handleRowClick = (id: number) => {
+  const handleRowClick = (id: string) => { // Cambiado a GUID (string)
     setSelectedId(selectedId === id ? null : id)
   }
 
   const handleDeleteClick = () => {
     if (selectedId !== null) {
-      toastr.confirm('¿Estás seguro de que quieres eliminar este habitante?', {
+      toastr.confirm('Seguro de que quieres eliminar este habitante?', {
         onOk: () => {
-          dispatch(deleteInhabitant(selectedId))
+          dispatch(deleteInhabitant(selectedId)) // Cambiado a GUID (string)
           setSelectedId(null)
         }
       })
     } else {
       toastr.warning('Selecciona un habitante para eliminar')
     }
+  }
+
+  const handleEditClick = () => {
+    if (selectedId !== null) {
+      const inhabitant = list.find((inhabitant) => inhabitant.id === selectedId)
+      if (inhabitant) {
+        setName(inhabitant.name)
+        setSpecies(inhabitant.species)
+        setOrigin(inhabitant.origin)
+        setIsRebel(inhabitant.isSuspectedRebel)
+      }
+    } else {
+      toastr.warning('Selecciona un habitante para editar')
+    }
+  }
+
+  const handleSaveClick = async () => {
+    if (selectedId !== null) {
+      const inhabitant = list.find((inhabitant) => inhabitant.id === selectedId)
+      if (inhabitant) {
+        const updatedInhabitant = {
+          name: name || inhabitant.name,
+          species: species || inhabitant.species,
+          origin: origin || inhabitant.origin,
+          isSuspectedRebel: isRebel
+        }
+
+        dispatch(updateInhabitant({ id: inhabitant.id, inhabitantData: updatedInhabitant })) 
+        toastr.success('Habitante actualizado exitosamente')
+        dispatch(fetchInhabitants())
+        setSelectedId(null)
+      }
+    }
+  }
+
+  const handleCreateClick = async () => {
+    const newInhabitant = {
+      name,
+      species,
+      origin,
+      isSuspectedRebel: isRebel
+    }
+
+    dispatch(createInhabitant(newInhabitant))
+    toastr.success('Habitante creado exitosamente')
+    setName('')
+    setSpecies('')
+    setOrigin('')
+    setIsRebel(false)
   }
 
   return (
@@ -105,7 +172,7 @@ const Home: React.FC = () => {
               <tr
                 key={inhabitant.id}
                 className={selectedId === inhabitant.id ? classes.selectedRow : ''}
-                onClick={() => handleRowClick(inhabitant.id)}
+                onClick={() => handleRowClick(inhabitant.id)} // Changed to GUID (string)
               >
                 <td className={classes.td}>{inhabitant.id}</td>
                 <td className={classes.td}>{inhabitant.name}</td>
@@ -121,12 +188,81 @@ const Home: React.FC = () => {
       <div className={classes.buttonContainer}>
         <button className={classes.button} onClick={handleAddClick}>Agregar</button>
         <button className={classes.button} onClick={handleDeleteClick}>Eliminar</button>
-        <button className={classes.button}>Editar</button>
+        <button className={classes.button} onClick={handleEditClick}>Editar</button>
       </div>
+
+      {selectedId !== null && (
+        <div className={classes.formContainer}>
+          <input
+            className={classes.input}
+            type="text"
+            placeholder="Nombre"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <input
+            className={classes.input}
+            type="text"
+            placeholder="Especie"
+            value={species}
+            onChange={(e) => setSpecies(e.target.value)}
+          />
+          <input
+            className={classes.input}
+            type="text"
+            placeholder="Origen"
+            value={origin}
+            onChange={(e) => setOrigin(e.target.value)}
+          />
+          <label className={classes.checkbox}>
+            <input
+              type="checkbox"
+              checked={isRebel}
+              onChange={() => setIsRebel(!isRebel)}
+            />
+                        Rebelde
+          </label>
+          <button className={classes.button} onClick={handleSaveClick}>Guardar</button>
+        </div>
+      )}
+
+      {selectedId === null && (
+        <div className={classes.formContainer}>
+          <input
+            className={classes.input}
+            type="text"
+            placeholder="Nombre"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <input
+            className={classes.input}
+            type="text"
+            placeholder="Especie"
+            value={species}
+            onChange={(e) => setSpecies(e.target.value)}
+          />
+          <input
+            className={classes.input}
+            type="text"
+            placeholder="Origen"
+            value={origin}
+            onChange={(e) => setOrigin(e.target.value)}
+          />
+          <label className={classes.checkbox}>
+            <input
+              type="checkbox"
+              checked={isRebel}
+              onChange={() => setIsRebel(!isRebel)}
+            />
+                        Rebelde
+          </label>
+          <button className={classes.button} onClick={handleCreateClick}>Crear</button>
+        </div>
+      )}
     </div>
   )
 }
 
 export default Home
-
 
