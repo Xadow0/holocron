@@ -1,6 +1,7 @@
 import React from 'react'
 import { createUseStyles } from 'react-jss'
 import { Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 const useStyles = createUseStyles({
   sidebar: {
@@ -23,13 +24,14 @@ const useStyles = createUseStyles({
 
 const Sidebar: React.FC = () => {
   const classes = useStyles()
+  const { t } = useTranslation()
 
   return (
     <aside className={classes.sidebar}>
-      <h2>Proyecto Holocron</h2>
+      <h2>{t('common.project')}</h2>
       <nav>
-        <Link to="/" className={classes.navLink}>Inicio</Link>
-        <Link to="/inhabitants" className={classes.navLink}>Habitantes</Link>
+        <Link to="/" className={classes.navLink}>{t('common.start')}</Link>
+        <Link to="/inhabitants" className={classes.navLink}>{t('common.habitants')}</Link>
       </nav>
     </aside>
   )

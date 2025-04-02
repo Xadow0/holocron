@@ -4,7 +4,10 @@
     "error": "Error: {{message}}",
     "yes": "Yes",
     "no": "No",
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "project": "Holocron Project",
+    "start": "Start Page",
+    "habitants": "Habitants"
   },
   "buttons": {
     "save": "Save",
