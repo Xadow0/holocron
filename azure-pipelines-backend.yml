@@ -23,9 +23,12 @@ stages:
         installationPath: $(Agent.ToolsDirectory)/dotnet
 
     - script: |
-        dotnet restore
-        dotnet build --configuration $(buildConfiguration) --no-restore
-      displayName: 'Restaurar y Compilar'
+        dotnet restore Holocron.API/Holocron.API.csproj
+      displayName: 'Restaurar dependencias API'
+
+    - script: |
+        dotnet build Holocron.API/Holocron.API.csproj --configuration $(buildConfiguration) --no-restore
+      displayName: 'Compilar API'
 
     - script: |
         dotnet publish Holocron.API/Holocron.API.csproj --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)
