@@ -1,0 +1,52 @@
+{
+  "common": {
+    "loading": "Cargando...",
+    "error": "Error: {{message}}",
+    "yes": "Si",
+    "no": "No",
+    "unknown": "Desconocido"
+  },
+  "buttons": {
+    "save": "Guardar",
+    "add": "Agregar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "create": "Crear",
+    "search": "Buscar",
+    "searchingText": "Buscando...",
+    "showRebels": "Mostrar Rebeldes",
+    "loadingRebels": "Cargando Rebeldes..."
+  },
+  "home": {
+    "title": "Lista de habitantes de Tatooine"
+  },
+  "inhabitant": {
+    "id": "ID",
+    "name": "Nombre",
+    "species": "Especie",
+    "rebel": "Rebelde",
+    "origin": "Origen",
+    "noResults": "No hay resultados para mostrar"
+  },
+  "addInhabitant": {
+    "title": "Agregar Nuevo Habitante",
+    "namePlaceholder": "Nombre",
+    "speciesPlaceholder": "Especie",
+    "originPlaceholder": "Origen (opcional)",
+    "rebelLabel": "Rebelde",
+    "requiredFields": "Los campos <strong>Nombre</strong> y <strong>Especie</strong> son obligatorios"
+  },
+  "search": {
+    "title": "Buscar Habitantes",
+    "placeholder": "Nombre o especie",
+    "result": "Resultado"
+  },
+  "notifications": {
+    "deleteConfirm": "Seguro de que quieres eliminar este habitante?",
+    "selectToDelete": "Selecciona un habitante para eliminar",
+    "selectToEdit": "Selecciona un habitante para editar",
+    "createdSuccess": "Habitante creado exitosamente",
+    "updateSuccess": "Habitante actualizado exitosamente",
+    "createError": "Error al crear el habitante"
+  }
+}

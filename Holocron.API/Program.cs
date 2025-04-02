@@ -10,6 +10,7 @@ using Holocron.Domain.Interfaces.Repositories;
 using Holocron.Infrastructure.Repositories;
 using Holocron.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
+using Holocron.Infrastructure.SeedData;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,6 +49,11 @@ builder.Services.AddSwaggerGen(c =>
 
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    DbInitializer.Initialize(scope.ServiceProvider);
+} 
 
 // Middleware Configuration
 if (app.Environment.IsDevelopment())

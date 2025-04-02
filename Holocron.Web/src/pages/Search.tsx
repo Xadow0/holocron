@@ -3,6 +3,7 @@ import { createUseStyles } from 'react-jss'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from '../redux/store'
 import { fetchSearchResults, fetchRebels } from '../redux/slices/inhabitantsSlice'
+import { useTranslation } from 'react-i18next'
 
 const useStyles = createUseStyles({
   container: {
@@ -61,14 +62,12 @@ const useStyles = createUseStyles({
   }
 })
 
-
-
-
 const Search: React.FC = () => {
   const classes = useStyles()
   const dispatch = useDispatch<AppDispatch>()
   const [name, setName] = useState('')
   const { searchResults, loading } = useSelector((state: RootState) => state.inhabitants)
+  const { t } = useTranslation()
 
   const handleSearch = async () => {
     const query = name.trim()
@@ -83,12 +82,12 @@ const Search: React.FC = () => {
 
   return (
     <div className={classes.container}>
-      <h1>Buscar Habitantes</h1>
+      <h1>{t('search.title')}</h1>
       <form className={classes.form} onSubmit={(e) => e.preventDefault()}>
         <input
           className={classes.input}
           type="text"
-          placeholder="Nombre o especie"
+          placeholder={t('search.placeholder')}
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
@@ -99,7 +98,7 @@ const Search: React.FC = () => {
             onClick={handleSearch}
             disabled={loading}
           >
-            {loading ? 'Buscando...' : 'Buscar'}
+            {loading ? t('buttons.searchingText') : t('buttons.search')}
           </button>
           <button
             type="button"
@@ -107,20 +106,20 @@ const Search: React.FC = () => {
             onClick={handleShowRebels}
             disabled={loading}
           >
-            {loading ? 'Cargando Rebeldes...' : 'Mostrar Rebeldes'}
+            {loading ? t('buttons.loadingRebels') : t('buttons.showRebels')}
           </button>
         </div>
       </form>
       <div className={classes.resultContainer}>
-        <span className={classes.resultLabel}>Resultado</span>
+        <span className={classes.resultLabel}>{t('search.result')}</span>
         <table className={classes.table}>
           <thead>
             <tr>
-              <th className={classes.th}>ID</th>
-              <th className={classes.th}>Nombre</th>
-              <th className={classes.th}>Especie</th>
-              <th className={classes.th}>Rebelde</th>
-              <th className={classes.th}>Origen</th>
+              <th className={classes.th}>{t('inhabitant.id')}</th>
+              <th className={classes.th}>{t('inhabitant.name')}</th>
+              <th className={classes.th}>{t('inhabitant.species')}</th>
+              <th className={classes.th}>{t('inhabitant.rebel')}</th>
+              <th className={classes.th}>{t('inhabitant.origin')}</th>
             </tr>
           </thead>
           <tbody>
@@ -130,14 +129,14 @@ const Search: React.FC = () => {
                   <td className={classes.td}>{result.id}</td>
                   <td className={classes.td}>{result.name}</td>
                   <td className={classes.td}>{result.species}</td>
-                  <td className={classes.td}>{result.isSuspectedRebel ? 'Si' : 'No'}</td>
-                  <td className={classes.td}>{result.origin || 'Desconocido'}</td>
+                  <td className={classes.td}>{result.isSuspectedRebel ? t('common.yes') : t('common.no')}</td>
+                  <td className={classes.td}>{result.origin || t('common.unknown')}</td>
                 </tr>
               ))
             ) : (
               <tr>
                 <td className={classes.td} colSpan={5}>
-                                    No hay resultados para mostrar
+                  {t('inhabitant.noResults')}
                 </td>
               </tr>
             )}
@@ -149,4 +148,3 @@ const Search: React.FC = () => {
 }
 
 export default Search
-

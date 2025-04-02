@@ -1,0 +1,52 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error: {{message}}",
+    "yes": "Yes",
+    "no": "No",
+    "unknown": "Unknown"
+  },
+  "buttons": {
+    "save": "Save",
+    "add": "Add",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "searchingText": "Searching...",
+    "showRebels": "Show Rebels",
+    "loadingRebels": "Loading Rebels..."
+  },
+  "home": {
+    "title": "Tatooine Inhabitants List"
+  },
+  "inhabitant": {
+    "id": "ID",
+    "name": "Name",
+    "species": "Species",
+    "rebel": "Rebel",
+    "origin": "Origin",
+    "noResults": "No results to show"
+  },
+  "addInhabitant": {
+    "title": "Add New Inhabitant",
+    "namePlaceholder": "Name",
+    "speciesPlaceholder": "Species",
+    "originPlaceholder": "Origin (optional)",
+    "rebelLabel": "Rebel",
+    "requiredFields": "The fields <strong>Name</strong> and <strong>Species</strong> are required"
+  },
+  "search": {
+    "title": "Search Inhabitants",
+    "placeholder": "Name or species",
+    "result": "Result"
+  },
+  "notifications": {
+    "deleteConfirm": "Are you sure you want to delete this inhabitant?",
+    "selectToDelete": "Select an inhabitant to delete",
+    "selectToEdit": "Select an inhabitant to edit",
+    "createdSuccess": "Inhabitant created successfully",
+    "updateSuccess": "Inhabitant updated successfully",
+    "createError": "Error creating inhabitant"
+  }
+}
