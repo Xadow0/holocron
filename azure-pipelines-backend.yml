@@ -1,5 +1,5 @@
 trigger:
-- main  # O la rama que uses para producción
+- Page-Init  # O la rama que uses para producción
 
 pool:
   vmImage: 'windows-latest' # Usa Windows para .NET y App Service
