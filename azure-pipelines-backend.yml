@@ -1,38 +1,64 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
-
 trigger:
-- master
+- main  # O la rama que uses para producción
 
 pool:
-  vmImage: 'windows-latest'
+  vmImage: 'windows-latest' # Usa Windows para .NET y App Service
 
 variables:
-  azureSubscription: 'AzureConnection-Holocron'
-  webAppName: 'lsanwebapp01'
-  resourceGroupName: 'Tu-Resource-Group'
-  environmentName: 'Development'
+  buildConfiguration: 'Release'
+  dotnetVersion: '8.0.x'
+  appServiceName: 'lsanwebapp01'  # Nombre de tu App Service
 
-steps:
-- task: UseDotNet@2
-  inputs:
-    packageType: 'sdk'
-    version: '8.x'
+stages:
+- stage: Build
+  displayName: 'Compilar y Publicar'
+  jobs:
+  - job: Build
+    steps:
+    - task: UseDotNet@2
+      displayName: 'Instalar .NET 8'
+      inputs:
+        packageType: 'sdk'
+        version: '$(dotnetVersion)'
+        installationPath: $(Agent.ToolsDirectory)/dotnet
 
-- script: dotnet build --configuration Release
-  displayName: 'Build Backend'
+    - script: |
+        dotnet restore
+        dotnet build --configuration $(buildConfiguration) --no-restore
+      displayName: 'Restaurar y Compilar'
 
-- script: dotnet publish -c Release -o $(Build.ArtifactStagingDirectory)/backend
-  displayName: 'Publish Backend'
+    - script: |
+        dotnet publish Holocron.API/Holocron.API.csproj --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)
+      displayName: 'Publicar API'
 
-- task: AzureWebApp@1
-  inputs:
-    azureSubscription: $(azureSubscription)
-    appName: $(webAppName)
-    appType: webApp
-    package: '$(Build.ArtifactStagingDirectory)/backend'
-    resourceGroupName: $(resourceGroupName)
-    appSettings: |
-      ConnectionStrings__DefaultConnection=$(SQL_CONNECTION_STRING)
+    - task: PublishBuildArtifacts@1
+      displayName: 'Subir Artefacto'
+      inputs:
+        pathToPublish: $(Build.ArtifactStagingDirectory)
+        artifactName: 'drop'
+
+- stage: Deploy
+  displayName: 'Desplegar en Azure'
+  dependsOn: Build
+  jobs:
+  - deployment: DeployWebApp
+    displayName: 'Deploy en Azure App Service'
+    environment: 'production'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: DownloadBuildArtifacts@0
+            displayName: 'Descargar Artefactos'
+            inputs:
+              artifactName: 'drop'
+              downloadPath: $(System.ArtifactsDirectory)
+
+          - task: AzureWebApp@1
+            displayName: 'Desplegar en Azure App Service'
+            inputs:
+              azureSubscription: 'AzureConnection-Holocron'  # Configurar en Azure DevOps
+              appName: '$(appServiceName)'
+              appType: webApp
+              package: '$(System.ArtifactsDirectory)/drop'
+              runtimeStack: 'DOTNETCORE:8.0'
