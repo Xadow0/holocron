@@ -1,6 +1,7 @@
 import React from 'react'
 import { createUseStyles } from 'react-jss'
 import Sidebar from './Sidebar'
+import LanguageSwitcher from './LanguageSwitcher'
 
 const useStyles = createUseStyles({
   layout: {
@@ -11,11 +12,16 @@ const useStyles = createUseStyles({
     flex: 1,
     padding: '20px',
     overflowY: 'auto'
+  },
+  header: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    padding: '10px'
   }
 })
 
 interface MainLayoutProps {
-    children: React.ReactNode
+    children: React.ReactNode;
 }
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
@@ -25,6 +31,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     <div className={classes.layout}>
       <Sidebar />
       <main className={classes.content}>
+        <div className={classes.header}>
+          <LanguageSwitcher />
+        </div>
         {children}
       </main>
     </div>

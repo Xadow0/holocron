@@ -1,5 +1,10 @@
 import React, { useState } from 'react'
 import { createUseStyles } from 'react-jss'
+import { useDispatch } from 'react-redux'
+import { AppDispatch } from '../redux/store'
+import { createInhabitant } from '../redux/slices/inhabitantsSlice'
+import { useTranslation } from 'react-i18next'
+import toastr from '../utils/toastr'
 
 const useStyles = createUseStyles({
   container: {
@@ -47,6 +52,8 @@ const useStyles = createUseStyles({
 
 const AddInhabitant: React.FC = () => {
   const classes = useStyles()
+  const dispatch = useDispatch<AppDispatch>()
+  const { t } = useTranslation()
 
   const [name, setName] = useState('')
   const [species, setSpecies] = useState('')
@@ -56,20 +63,28 @@ const AddInhabitant: React.FC = () => {
   // validation to activate the button
   const isFormValid = name.trim() !== '' && species.trim() !== ''
 
-  const handleSave = () => {
-    // Code to save the inhabitant
-    console.log({ name, species, origin, isRebel })
+  const handleSave = async () => {
+    try {
+      await dispatch(createInhabitant({ name, species, origin, isSuspectedRebel: isRebel })).unwrap()
+      toastr.success(t('notifications.createdSuccess'))
+      setName('')
+      setSpecies('')
+      setOrigin('')
+      setIsRebel(false)
+    } catch (error) {
+      toastr.error(t('notifications.createError'))
+    }
   }
 
   return (
     <div className={classes.container}>
-      <h1>Agregar Nuevo Habitante</h1>
+      <h1>{t('addInhabitant.title')}</h1>
 
       <div>
         <input
           className={classes.input}
           type="text"
-          placeholder="Nombre"
+          placeholder={t('addInhabitant.namePlaceholder')}
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
@@ -80,7 +95,7 @@ const AddInhabitant: React.FC = () => {
         <input
           className={classes.input}
           type="text"
-          placeholder="Especie"
+          placeholder={t('addInhabitant.speciesPlaceholder')}
           value={species}
           onChange={(e) => setSpecies(e.target.value)}
         />
@@ -90,7 +105,7 @@ const AddInhabitant: React.FC = () => {
       <input
         className={classes.input}
         type="text"
-        placeholder="Origen (opcional)"
+        placeholder={t('addInhabitant.originPlaceholder')}
         value={origin}
         onChange={(e) => setOrigin(e.target.value)}
       />
@@ -101,14 +116,14 @@ const AddInhabitant: React.FC = () => {
           checked={isRebel}
           onChange={(e) => setIsRebel(e.target.checked)}
         />
-                Rebelde
+        {t('addInhabitant.rebelLabel')}
       </label>
 
       {/* Text when the form is invalid */}
       {!isFormValid && (
-        <div className={classes.errorText}>
-                    Los campos <strong>Nombre</strong> y <strong>Especie</strong> son obligatorios
-        </div>
+        <div className={classes.errorText}
+          dangerouslySetInnerHTML={{ __html: t('addInhabitant.requiredFields') }}
+        />
       )}
 
       {/* Disable save button */}
@@ -117,7 +132,7 @@ const AddInhabitant: React.FC = () => {
         onClick={handleSave}
         disabled={!isFormValid}
       >
-                Guardar
+        {t('buttons.save')}
       </button>
     </div>
   )

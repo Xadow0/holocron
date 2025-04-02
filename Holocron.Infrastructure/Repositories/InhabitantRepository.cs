@@ -51,7 +51,6 @@ namespace Holocron.Infrastructure.Repositories
         {
             return await _context.Inhabitants
                 .Where(i => i.IsSuspectedRebel)
-                .AsNoTracking()
                 .ToListAsync();
         }
 

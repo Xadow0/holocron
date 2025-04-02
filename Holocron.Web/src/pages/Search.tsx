@@ -1,5 +1,9 @@
 import React, { useState } from 'react'
 import { createUseStyles } from 'react-jss'
+import { useDispatch, useSelector } from 'react-redux'
+import { AppDispatch, RootState } from '../redux/store'
+import { fetchSearchResults, fetchRebels } from '../redux/slices/inhabitantsSlice'
+import { useTranslation } from 'react-i18next'
 
 const useStyles = createUseStyles({
   container: {
@@ -60,103 +64,80 @@ const useStyles = createUseStyles({
 
 const Search: React.FC = () => {
   const classes = useStyles()
+  const dispatch = useDispatch<AppDispatch>()
   const [name, setName] = useState('')
-  const [species, setSpecies] = useState('')
-  const [rebels, setRebels] = useState<any[]>([])
-  const [searchResults, setSearchResults] = useState<any[]>([])
+  const { searchResults, loading } = useSelector((state: RootState) => state.inhabitants)
+  const { t } = useTranslation()
 
-  // Función para consultar los rebeldes (simulación de la llamada API)
-  const handleConsultRebels = () => {
-    const rebelList = [
-      { id: 1, name: 'Luke Skywalker', species: 'Humano', isRebel: true, origin: 'Tatooine' },
-      { id: 2, name: 'Leia Organa', species: 'Humano', isRebel: true, origin: 'Alderaan' },
-      { id: 3, name: 'Han Solo', species: 'Humano', isRebel: true, origin: 'Corellia' }
-    ]
-    setRebels(rebelList)
-    setSearchResults([]) // Limpiar resultados de búsqueda si se consulta rebeldes
+  const handleSearch = async () => {
+    const query = name.trim()
+    if (query) {
+      dispatch(fetchSearchResults(query))
+    }
   }
 
-  // Función para buscar por nombre y especie
-  const handleSearch = () => {
-    // Aquí puedes agregar la lógica de búsqueda real, por ejemplo, filtrando por nombre o especie
-    const filteredResults = [
-      { id: 1, name: 'Han Solo', species: 'Humano', isRebel: true, origin: 'Corellia' }
-    ]
-    setSearchResults(filteredResults)
-    setRebels([]) // Limpiar rebeldes si se realiza una búsqueda
+  const handleShowRebels = () => {
+    dispatch(fetchRebels())
   }
 
   return (
     <div className={classes.container}>
-      <h1>Buscar Habitantes</h1>
-      <form className={classes.form}>
+      <h1>{t('search.title')}</h1>
+      <form className={classes.form} onSubmit={(e) => e.preventDefault()}>
         <input
           className={classes.input}
           type="text"
-          placeholder="Nombre"
+          placeholder={t('search.placeholder')}
           value={name}
-          onChange={e => setName(e.target.value)}
-        />
-        <input
-          className={classes.input}
-          type="text"
-          placeholder="Especie"
-          value={species}
-          onChange={e => setSpecies(e.target.value)}
+          onChange={(e) => setName(e.target.value)}
         />
         <div className={classes.buttonContainer}>
           <button
             type="button"
             className={classes.button}
             onClick={handleSearch}
+            disabled={loading}
           >
-                        Buscar
+            {loading ? t('buttons.searchingText') : t('buttons.search')}
           </button>
           <button
             type="button"
             className={classes.button}
-            onClick={handleConsultRebels}
+            onClick={handleShowRebels}
+            disabled={loading}
           >
-                        Consultar Rebeldes
+            {loading ? t('buttons.loadingRebels') : t('buttons.showRebels')}
           </button>
         </div>
       </form>
       <div className={classes.resultContainer}>
-        <span className={classes.resultLabel}>Resultado</span>
+        <span className={classes.resultLabel}>{t('search.result')}</span>
         <table className={classes.table}>
           <thead>
             <tr>
-              <th className={classes.th}>ID</th>
-              <th className={classes.th}>Nombre</th>
-              <th className={classes.th}>Especie</th>
-              <th className={classes.th}>Rebelde</th>
-              <th className={classes.th}>Origen</th>
+              <th className={classes.th}>{t('inhabitant.id')}</th>
+              <th className={classes.th}>{t('inhabitant.name')}</th>
+              <th className={classes.th}>{t('inhabitant.species')}</th>
+              <th className={classes.th}>{t('inhabitant.rebel')}</th>
+              <th className={classes.th}>{t('inhabitant.origin')}</th>
             </tr>
           </thead>
           <tbody>
-            {rebels.length > 0 ? (
-              rebels.map(rebel => (
-                <tr key={rebel.id}>
-                  <td className={classes.td}>{rebel.id}</td>
-                  <td className={classes.td}>{rebel.name}</td>
-                  <td className={classes.td}>{rebel.species}</td>
-                  <td className={classes.td}>{rebel.isRebel ? 'Si' : 'No'}</td>
-                  <td className={classes.td}>{rebel.origin}</td>
-                </tr>
-              ))
-            ) : searchResults.length > 0 ? (
-              searchResults.map(result => (
+            {searchResults.length > 0 ? (
+              searchResults.map((result) => (
                 <tr key={result.id}>
                   <td className={classes.td}>{result.id}</td>
                   <td className={classes.td}>{result.name}</td>
                   <td className={classes.td}>{result.species}</td>
-                  <td className={classes.td}>{result.isRebel ? 'Si' : 'No'}</td>
-                  <td className={classes.td}>{result.origin}</td>
+                  <td className={classes.td}>{result.isSuspectedRebel ? t('common.yes') : t('common.no')}</td>
+                  <td className={classes.td}>{result.origin || t('common.unknown')}</td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td className={classes.td} colSpan={5}>No hay resultados para mostrar</td>
+                <td className={classes.td} colSpan={5}>
+                  {t('inhabitant.noResults')}
+                </td>
               </tr>
             )}
           </tbody>
