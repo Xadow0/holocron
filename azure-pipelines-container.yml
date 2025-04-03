@@ -1,0 +1,69 @@
+pool:
+  vmImage: 'ubuntu-latest'  # El agente que usará Azure DevOps (puedes cambiarlo por otro si lo prefieres)
+
+variables:
+  azureSubscription: 'AzureConnection-Holocron'  # Nombre de tu suscripción de Azure
+  acrName: 'holocronregistry'  # Nombre de tu Azure Container Registry
+  imageName: 'holocron-api'  # Nombre de la imagen que se creará
+  containerAppName: 'holocron-backend'  # Nombre de la aplicación de contenedor que será desplegada
+  imageTag: '$(Build.BuildId)'  # Etiqueta única para cada construcción (ID de compilación)
+  dockerfilePath: './Holocron.API/Dockerfile'  # Ruta del archivo Dockerfile en tu repositorio
+
+stages:
+- stage: Build
+  displayName: 'Build Docker Image'
+  jobs:
+  - job: BuildAndPush
+    displayName: 'Build and Push Docker Image to ACR'
+    steps:
+    - task: Docker@2
+      displayName: 'Log in to Azure Container Registry'
+      inputs:
+        containerRegistry: 'ContainerConnectionRegistry'  # El nombre de la conexión de servicio tipo Docker Registry creada
+        repository: 'holocronregistry.azurecr.io/$(imageName)'  # Repositorio en ACR (usamos la URL del ACR)
+        command: 'login'  # El task Docker@2 maneja el login automáticamente
+        
+    - task: Docker@2
+      displayName: 'Build Docker Image'
+      inputs:
+        containerRegistry: 'ContainerConnectionRegistry'  # Conexión de servicio a tu ACR
+        repository: 'holocronregistry.azurecr.io/$(imageName)'  # Nombre del repositorio en ACR
+        dockerfile: $(dockerfilePath)
+        buildContext: $(Build.SourcesDirectory)  # Directorio del código fuente
+        tags: $(imageTag)  # Usamos el ID de la compilación como tag de la imagen
+
+    - task: Docker@2
+      displayName: 'Push Docker Image to ACR'
+      inputs:
+        containerRegistry: 'ContainerConnectionRegistry'  # Conexión de servicio a tu ACR
+        repository: 'holocronregistry.azurecr.io/$(imageName)'  # Nombre del repositorio en ACR
+        command: 'push'
+        tags: $(imageTag)  # Subimos la imagen al ACR con el tag
+
+- stage: Deploy
+  displayName: 'Deploy to Azure Container Apps'
+  dependsOn: Build
+  jobs:
+  - job: Deploy
+    displayName: 'Deploy to Azure Container Apps'
+    steps:
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: '$(azureSubscription)'  # Asegúrate de que esta variable esté correctamente configurada
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          # Registrar el proveedor de recursos si no está registrado
+          az provider register --namespace Microsoft.App
+
+          # Desplegar la aplicación en Azure Container Apps
+          az containerapp create \
+            --name $(containerAppName) \
+            --resource-group $(resourceGroup) \
+            --image $(acrName).azurecr.io/$(imageName):$(tag) \
+            --cpu 1 \
+            --memory 2Gi \
+            --env-vars INITIALIZATION=1 PERSISTENCE=Enabled USER=holocronregistry PASSWORD=$(PASSWORD) CONNECTION=$(YOUR_CONNECTION_STRING) \
+            --tags "app=holocron" \
+            --min-replicas 1 \
+            --max-replicas 5
