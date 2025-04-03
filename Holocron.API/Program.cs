@@ -30,7 +30,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: corsPolicy,
         policy =>
         {
-            policy.WithOrigins("http://localhost:3000") // Frontend URL
+            policy.WithOrigins("http://localhost:3000", "https://lsanwebapp01-frontend.azurestaticapps.net", "https://calm-beach-079a70003.6.azurestaticapps.net/") // Frontend URL
                   .AllowAnyMethod()
                   .AllowAnyHeader();
         });
@@ -50,13 +50,20 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
+app.UseRouting();
+app.UseEndpoints(endpoints =>
+{
+    endpoints.MapControllers();
+    endpoints.MapGet("/health", () => "OK");
+});
+
 using (var scope = app.Services.CreateScope())
 {
     DbInitializer.Initialize(scope.ServiceProvider);
 } 
 
 // Middleware Configuration
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Holocron API v1"));
