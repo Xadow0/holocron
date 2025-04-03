@@ -50,13 +50,6 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-app.UseRouting();
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-    endpoints.MapGet("/health", () => "OK");
-});
-
 using (var scope = app.Services.CreateScope())
 {
     DbInitializer.Initialize(scope.ServiceProvider);
