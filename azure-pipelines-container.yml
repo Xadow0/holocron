@@ -29,7 +29,7 @@ stages:
         command: build
         containerRegistry: 'ContainerConnectionRegistry'
         repository: 'holocron-api'
-        dockerfile: '/Dockerfile'
+        dockerfile: 'Holocron/Dockerfile'
         tags: '$(Build.BuildId)'
 
     - task: Docker@2
