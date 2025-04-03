@@ -54,6 +54,9 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
+          az provider register --namespace Microsoft.Web
+          az provider register --namespace Microsoft.App
+        
           az containerapp up \
             --name $(containerAppName) \
             --resource-group lsanwebapp01_group  # Grupo de recursos en Azure
