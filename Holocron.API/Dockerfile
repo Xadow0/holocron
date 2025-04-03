@@ -1,25 +1,30 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+﻿# Fase base para la ejecución de la app
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
+# Fase de build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY ["Holocron.API/Holocron.API.csproj", "Holocron.API/"]
-COPY ["Holocron.Application/Holocron.Application.csproj", "Holocron.Application/"]
-COPY ["Holocron.Domain/Holocron.Domain.csproj", "Holocron.Domain/"]
-COPY ["Holocron.Infrastructure/Holocron.Infrastructure.csproj", "Holocron.Infrastructure/"]
 
-RUN dotnet restore "Holocron.API/Holocron.API.csproj"
+# Copiar todo el directorio Holocron al contenedor
+COPY Holocron/ /src/Holocron/
 
-COPY . .
-WORKDIR "/src/Holocron.API"
+# Restaurar las dependencias de los proyectos
+RUN dotnet restore "/src/Holocron/Holocron.API/Holocron.API.csproj"
+
+# Construir el proyecto Holocron.API
+WORKDIR "/src/Holocron/Holocron.API"
 RUN dotnet build "Holocron.API.csproj" -c Release -o /app/build
 
+# Fase de publicación
 FROM build AS publish
 RUN dotnet publish "Holocron.API.csproj" -c Release -o /app/publish
 
+# Fase final para ejecutar la aplicación
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "Holocron.API.dll"]
+
