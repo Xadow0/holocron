@@ -48,19 +48,22 @@ stages:
     displayName: 'Deploy to Azure Container Apps'
     steps:
     - task: AzureCLI@2
-      displayName: 'Deploy to Azure Container Apps'
       inputs:
-        azureSubscription: $(azureSubscription)  # Suscripción de Azure configurada en Azure DevOps
+        azureSubscription: '$(azureSubscription)'  # Asegúrate de que esta variable esté correctamente configurada
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          az provider register --namespace Microsoft.Web
+          # Registrar el proveedor de recursos si no está registrado
           az provider register --namespace Microsoft.App
-        
-          az containerapp up \
+
+          # Desplegar la aplicación en Azure Container Apps
+          az containerapp create \
             --name $(containerAppName) \
-            --resource-group lsanwebapp01_group  # Grupo de recursos en Azure
-            --image $(acrName).azurecr.io/$(imageName):$(imageTag) \
-            --target-port 80  # Puerto al que expondrás el contenedor
-            --env-vars INITIALIZATION=1 PERSISTENCE=Enabled USER=holocronregistry CONNECTION=$(YOUR_CONNECTION_STRING)  # Variables de entorno que necesita tu aplicación
-            --cpu 1 --memory 2Gi  # Configura los recursos de la aplicación (puedes ajustarlo)
+            --resource-group $(resourceGroup) \
+            --image $(acrName).azurecr.io/$(imageName):$(tag) \
+            --cpu 1 \
+            --memory 2Gi \
+            --env-vars INITIALIZATION=1 PERSISTENCE=Enabled USER=holocronregistry PASSWORD=$(PASSWORD) CONNECTION=$(YOUR_CONNECTION_STRING) \
+            --tags "app=holocron" \
+            --min-replicas 1 \
+            --max-replicas 5
