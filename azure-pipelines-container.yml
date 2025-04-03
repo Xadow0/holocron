@@ -36,7 +36,8 @@ stages:
       displayName: 'Push de imagen a ACR'
       inputs:
         command: push
-        repository: '$(containerRegistry)/$(imageName)'
+        containerRegistry: 'ContainerConnectionRegistry'
+        repository: 'holocron-api'
         tags: '$(Build.BuildId)'
 
 - stage: Deploy
