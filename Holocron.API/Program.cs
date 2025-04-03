@@ -30,7 +30,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: corsPolicy,
         policy =>
         {
-            policy.WithOrigins("http://localhost:3000", "https://lsanwebapp01-frontend.azurestaticapps.net", "https://calm-beach-079a70003.6.azurestaticapps.net/") // Frontend URL
+            policy.WithOrigins("http://localhost:3000", "https://lsanwebapp01-frontend.azurestaticapps.net", "https://calm-beach-079a70003.6.azurestaticapps.net") // Frontend URL
                   .AllowAnyMethod()
                   .AllowAnyHeader();
         });
