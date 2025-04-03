@@ -27,9 +27,9 @@ stages:
       displayName: 'Construir la imagen Docker'
       inputs:
         command: build
-        Dockerfile: 'Holocron.API/Dockerfile'
-        buildContext: '.'
-        repository: '$(containerRegistry)/$(imageName)'
+        containerRegistry: 'ContainerConnectionRegistry'
+        repository: 'holocron-api'
+        dockerfile: 'Holocron.API/Dockerfile'
         tags: '$(Build.BuildId)'
 
     - task: Docker@2
