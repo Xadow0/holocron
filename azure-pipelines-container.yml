@@ -76,4 +76,4 @@ stages:
             --name $(containerAppName) \
             --resource-group $(resourceGroup) \
             --image $(containerRegistry)/$(imageName):$(Build.BuildId) \
-            --set-env-vars "ASPNETCORE_ENVIRONMENT=Production"
+            --set-env-vars "ASPNETCORE_ENVIRONMENT=Development"
