@@ -1,0 +1,17 @@
+﻿{
+  "routes": [
+    {
+      "route": "/api/*",
+      "rewrite": "https://lsanwebapp01-ahdhasdffjczcehe.spaincentral-01.azurewebsites.net/api/*"
+    },
+    {
+      "route": "/*",
+      "serve": "/index.html"
+    }
+  ],
+  "responseOverrides": {
+    "404": {
+      "rewrite": "/index.html"
+    }
+  }
+}

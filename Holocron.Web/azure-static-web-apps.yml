@@ -1,0 +1,31 @@
+﻿name: Deploy Frontend to Azure Static Web Apps
+
+trigger:
+  branches:
+    include:
+      - main
+
+jobs:
+- job: BuildAndDeploy
+  displayName: "Build and Deploy Frontend"
+  pool:
+    vmImage: ubuntu-latest
+
+  steps:
+    - task: UseNode@2
+      inputs:
+        version: '20.x'
+
+    - script: |
+        cd Holocron.Web
+        npm install
+        npm run build
+      displayName: 'Install dependencies and build frontend'
+
+    - task: AzureStaticWebApp@0
+      inputs:
+        app_location: "Holocron.Web/dist"
+        config_file_location: "Holocron.Web/staticwebapp.config.json"
+        azure_static_web_apps_api_token: $(AZURE_STATIC_WEB_APPS_API_TOKEN)
+      displayName: 'Deploy to Azure Static Web Apps'
+
