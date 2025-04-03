@@ -4,7 +4,7 @@ pool:
 variables:
   containerRegistry: 'holocronregistry.azurecr.io'
   imageName: 'holocron-api'
-  buildConfiguration: 'Release'
+  buildConfiguration: 'Development'
   azureSubscription: 'AzureConnection-Holocron'
   containerAppName: 'holocron-container-app'  # Nombre del Container App
   resourceGroup: 'lsanwebapp01_group'  # Grupo de recursos de Azure
