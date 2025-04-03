@@ -46,6 +46,23 @@ stages:
   - job: DeployContainerApp
     displayName: 'Desplegar en Azure Container App'
     steps:
+    - task: AzureCLI@2
+      displayName: 'Esperar a que la imagen esté disponible en ACR'
+      inputs:
+        azureSubscription: '$(azureSubscription)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          echo "Verificando disponibilidad de la imagen en ACR..."
+          for i in {1..10}; do
+            az acr repository show-tags --name holocronregistry --repository holocron-api --output table | grep $(Build.BuildId)
+            if [ $? -eq 0 ]; then
+              echo "Imagen encontrada en ACR!"
+              break
+            fi
+            echo "Imagen aún no disponible. Reintentando en 10 segundos..."
+            sleep 10
+          done
 
     - task: AzureCLI@2
       displayName: 'Actualizar imagen en Azure Container App'
