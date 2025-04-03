@@ -1,7 +1,8 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit'
 import { Inhabitant } from '../../types/inhabitants'
 
-const API_URL = 'http://localhost:5149/api/inhabitants'
+// Define una variable central para la API URL
+const API_URL = 'https://lsanwebapp01-ahdhasdffjczcehe.spaincentral-01.azurewebsites.net/api/inhabitants'
 
 interface InhabitantsState {
     list: Inhabitant[]
@@ -16,7 +17,8 @@ export const fetchSearchResults = createAsyncThunk(
   'inhabitants/fetchSearchResults',
   async (query: string, { rejectWithValue }) => {
     try {
-      const response = await fetch(`http://localhost:5149/api/inhabitants/search?query=${encodeURIComponent(query)}`)
+      // Utiliza API_URL con el endpoint específico para búsqueda
+      const response = await fetch(`${API_URL}/search?query=${encodeURIComponent(query)}`)
       if (!response.ok) throw new Error('Error al buscar habitantes')
       return await response.json() as Inhabitant[]
     } catch (error: any) {
@@ -55,9 +57,10 @@ export const fetchRebels = createAsyncThunk(
   'inhabitants/fetchRebels',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await fetch('http://localhost:5149/api/inhabitants/rebels')  // URL de los rebeldes
+      // Utiliza API_URL con el endpoint para rebeldes
+      const response = await fetch(`${API_URL}/rebels`)
       if (!response.ok) throw new Error('Error al obtener los rebeldes')
-      return await response.json() as Inhabitant[]  // Asumimos que la respuesta será un array de habitantes
+      return await response.json() as Inhabitant[]
     } catch (error: any) {
       return rejectWithValue(error.message)
     }
@@ -68,6 +71,7 @@ export const updateInhabitant = createAsyncThunk(
   'inhabitants/updateInhabitant',
   async ({ id, inhabitantData }: { id: string, inhabitantData: { name: string; species: string; origin: string; isSuspectedRebel: boolean } }, { rejectWithValue }) => {
     try {
+      // Utiliza API_URL con el ID para la actualización
       const response = await fetch(`${API_URL}/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -85,7 +89,8 @@ export const fetchInhabitants = createAsyncThunk(
   'inhabitants/fetchInhabitants',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await fetch(API_URL) //API URL
+      // Utiliza API_URL para obtener todos los habitantes
+      const response = await fetch(API_URL)
       if (!response.ok) throw new Error('Error al obtener habitantes')
       return await response.json() as Inhabitant[]
     } catch (error: any) {
@@ -98,6 +103,7 @@ export const deleteInhabitant = createAsyncThunk(
   'inhabitants/deleteInhabitant',
   async (id: string, { rejectWithValue }) => {
     try {
+      // Utiliza API_URL para eliminar con el ID correspondiente
       await fetch(`${API_URL}/${id}`, { method: 'DELETE' })
       return id
     } catch (error) {
