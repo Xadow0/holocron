@@ -30,9 +30,6 @@ jobs:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          # Login to Azure
-          az account set --subscription $(AZURE_SUBSCRIPTION_ID)
-
           # Retrieve Backend:BaseUrl from Azure App Configuration
           echo "Retrieving Backend:BaseUrl from Azure App Configuration..."
           BACKEND_BASE_URL=$(az appconfig kv show --name holocron-appconfig --key "Backend:BaseUrl" --query "value" -o tsv)
