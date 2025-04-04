@@ -8,6 +8,7 @@ variables:
   azureSubscription: 'AzureConnection-Holocron'
   containerAppName: 'holocron-container-app'  # Nombre del Container App
   resourceGroup: 'lsanwebapp01_group'  # Grupo de recursos de Azure
+  keyVaultName: 'holocron-keyvault'
 
 stages:
 - stage: Build
@@ -47,6 +48,23 @@ stages:
   - job: DeployContainerApp
     displayName: 'Desplegar en Azure Container App'
     steps:
+    - task: AzureCLI@2
+      displayName: 'Configurar Variables de Entorno desde Key Vault'
+      inputs:
+        azureSubscription: '$(azureSubscription)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          # Obtener el secreto SqlConnectionString desde Key Vault
+          SQL_CONNECTION_STRING=$(az keyvault secret show --vault-name $(keyVaultName) --name SqlConnectionString --query value -o tsv)
+          
+          AZURE_STATIC_WEB_APPS_API_TOKEN=$(az keyvault secret show --vault-name $(keyVaultName) --name AzureStaticWebAppsApiToken --query value -o tsv)
+
+          az containerapp update \
+            --name $(containerAppName) \
+            --resource-group $(resourceGroup) \
+            --set-env-vars "SqlConnectionString=$SQL_CONNECTION_STRING" "AzureStaticWebAppsApiToken=$AZURE_STATIC_WEB_APPS_API_TOKEN"
+
     - task: AzureCLI@2
       displayName: 'Esperar a que la imagen esté disponible en ACR'
       inputs:
