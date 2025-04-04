@@ -46,8 +46,8 @@ jobs:
           fi
 
           # Create .env file and add the BACKEND_BASE_URL variable
-          echo "Creating .env file with BACKEND_BASE_URL"
-          echo "BACKEND_BASE_URL=$BACKEND_BASE_URL" > Holocron.Web/.env
+          echo "Creating .env file with VITE_BACKEND_BASE_URL"
+          echo "VITE_BACKEND_BASE_URL=$BACKEND_BASE_URL" > Holocron.Web/.env
 
           # List the files in the directory to ensure the .env file is created
           echo "Listing files in Holocron.Web:"
