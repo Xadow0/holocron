@@ -9,6 +9,7 @@ variables:
   containerAppName: 'holocron-container-app'  # Nombre del Container App
   resourceGroup: 'lsanwebapp01_group'  # Grupo de recursos de Azure
   keyVaultName: 'holocron-keyvault'
+  appConfigName: 'holocron-app-config'  # Nombre de tu App Configuration
 
 stages:
 - stage: Build
@@ -49,6 +50,17 @@ stages:
     displayName: 'Desplegar en Azure Container App'
     steps:
     - task: AzureCLI@2
+      displayName: 'Obtener Backend:BaseUrl desde Azure App Configuration'
+      inputs:
+        azureSubscription: '$(azureSubscription)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          # Obtener la clave Backend:BaseUrl desde Azure App Configuration
+          BACKEND_BASE_URL=$(az appconfig kv show --name $(appConfigName) --key "Backend:BaseUrl" --query "value" -o tsv)
+          echo "BACKEND_BASE_URL=$BACKEND_BASE_URL" >> $(Build.ArtifactStagingDirectory)/.env
+
+    - task: AzureCLI@2
       displayName: 'Configurar Variables de Entorno desde Key Vault'
       inputs:
         azureSubscription: '$(azureSubscription)'
@@ -57,13 +69,14 @@ stages:
         inlineScript: |
           # Obtener el secreto SqlConnectionString desde Key Vault
           SQL_CONNECTION_STRING=$(az keyvault secret show --vault-name $(keyVaultName) --name SqlConnectionString --query value -o tsv)
-          
+          # Obtener el token de Static Web Apps desde Key Vault
           AZURE_STATIC_WEB_APPS_API_TOKEN=$(az keyvault secret show --vault-name $(keyVaultName) --name AzureStaticWebAppsApiToken --query value -o tsv)
 
+          # Actualizar el Container App con las variables de entorno necesarias
           az containerapp update \
             --name $(containerAppName) \
             --resource-group $(resourceGroup) \
-            --set-env-vars "SqlConnectionString=$SQL_CONNECTION_STRING" "AzureStaticWebAppsApiToken=$AZURE_STATIC_WEB_APPS_API_TOKEN"
+            --set-env-vars "SqlConnectionString=$SQL_CONNECTION_STRING" "AzureStaticWebAppsApiToken=$AZURE_STATIC_WEB_APPS_API_TOKEN" "BackendBaseUrl=$BACKEND_BASE_URL"
 
     - task: AzureCLI@2
       displayName: 'Esperar a que la imagen esté disponible en ACR'
