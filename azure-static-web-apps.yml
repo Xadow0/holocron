@@ -49,11 +49,18 @@ jobs:
           echo "Creating .env file with VITE_BACKEND_BASE_URL"
           echo "VITE_BACKEND_BASE_URL=$BACKEND_BASE_URL" > Holocron.Web/.env
 
-          # List the files in the directory to ensure the .env file is created
-          echo "Listing files in Holocron.Web:"
-          ls -la Holocron.Web
+          # Display the content of the .env file to ensure it was created correctly
+          echo "Displaying contents of .env file:"
+          cat Holocron.Web/.env
       displayName: 'Fetch Backend:BaseUrl from Azure App Configuration and create .env file'
 
+    # Step to export environment variables from .env file for subsequent steps
+    - script: |
+        echo "Exporting environment variables from .env file"
+        set -a
+        source Holocron.Web/.env
+        set +a
+      displayName: 'Export environment variables from .env'
 
     - task: AzureStaticWebApp@0
       inputs:
@@ -61,3 +68,4 @@ jobs:
         config_file_location: "Holocron.Web"
         azure_static_web_apps_api_token: $(AZURE_STATIC_WEB_APPS_API_TOKEN)
       displayName: 'Deploy to Azure Static Web Apps'
+
