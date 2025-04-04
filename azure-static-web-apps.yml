@@ -12,18 +12,7 @@ jobs:
     vmImage: ubuntu-latest
 
   steps:
-    - task: NodeTool@0
-      inputs:
-        versionSpec: '20.x'
-      displayName: 'Install Node.js'
-
-    - script: |
-        cd Holocron.Web
-        npm install
-        npm run build
-      displayName: 'Install dependencies and build frontend'
-
-    # Step to retrieve Backend:BaseUrl from Azure App Configuration and create .env file
+      # Step to retrieve Backend:BaseUrl from Azure App Configuration and create .env file
     - task: AzureCLI@2
       inputs:
         azureSubscription: 'AzureConnection-Holocron' 
@@ -59,7 +48,17 @@ jobs:
         source Holocron.Web/.env
         set +a
       displayName: 'Export environment variables from .env'
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '20.x'
+      displayName: 'Install Node.js'
 
+    - script: |
+        cd Holocron.Web
+        npm install
+        npm run build
+      displayName: 'Install dependencies and build frontend'
+      
     - task: AzureStaticWebApp@0
       inputs:
         app_location: "Holocron.Web/dist"
