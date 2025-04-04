@@ -33,14 +33,18 @@ jobs:
           echo "##vso[task.setvariable variable=VITE_BACKEND_BASE_URL]$BACKEND_BASE_URL"
       displayName: 'Fetch Backend:BaseUrl and set as environment variable'
 
-# Ahora hacemos el build del frontend con la variable ya establecida
+    - script: |
+        echo "Exporting VITE_BACKEND_BASE_URL"
+        export VITE_BACKEND_BASE_URL=${VITE_BACKEND_BASE_URL}
+        echo "VITE_BACKEND_BASE_URL=$VITE_BACKEND_BASE_URL" >> $GITHUB_ENV
+      displayName: 'Export environment variables for build'
+
     - script: |
         cd Holocron.Web
+        echo "Building frontend with VITE_BACKEND_BASE_URL=$VITE_BACKEND_BASE_URL"
         npm install
         npm run build
       displayName: 'Install dependencies and build frontend'
-      env:
-        VITE_BACKEND_BASE_URL: $(VITE_BACKEND_BASE_URL)  # Pasamos la variable al entorno del build
 
     - task: NodeTool@0
       inputs:
