@@ -32,7 +32,8 @@ jobs:
         inlineScript: |
           # Retrieve Backend:BaseUrl from Azure App Configuration
           echo "Retrieving Backend:BaseUrl from Azure App Configuration..."
-          BACKEND_BASE_URL=$(az appconfig kv show --name holocron-appconfig --key "Backend:BaseUrl" --query "value" -o tsv)
+          BACKEND_BASE_URL=$(az appconfig kv show --name holocron-appconfig --key "Backend:BaseUrl" --query "value" -o tsv | tr -d '"')
+
 
           # Check if we have a valid value for BACKEND_BASE_URL
           if [ -z "$BACKEND_BASE_URL" ]; then
@@ -44,7 +45,7 @@ jobs:
 
           # Create .env file and add the BACKEND_BASE_URL variable
           echo "Creating .env file with VITE_BACKEND_BASE_URL"
-          echo "VITE_BACKEND_BASE_URL=$BACKEND_BASE_URL" > Holocron.Web/.env
+          echo VITE_BACKEND_BASE_URL=$BACKEND_BASE_URL > Holocron.Web/.env
 
           # Display the content of the .env file to ensure it was created correctly
           echo "Displaying contents of .env file:"
