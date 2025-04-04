@@ -32,7 +32,8 @@ jobs:
         inlineScript: |
           # Retrieve Backend:BaseUrl from Azure App Configuration
           echo "Retrieving Backend:BaseUrl from Azure App Configuration..."
-          BACKEND_BASE_URL=$(az appconfig kv show --name holocron-appconfig --key "Backend:BaseUrl" --query "value" -o tsv)
+          BACKEND_BASE_URL=$(az appconfig kv show --name holocron-appconfig --key "Backend:BaseUrl" --query "value" -o tsv | tr -d '"')
+
 
           # Check if we have a valid value for BACKEND_BASE_URL
           if [ -z "$BACKEND_BASE_URL" ]; then
