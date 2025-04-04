@@ -12,7 +12,11 @@ jobs:
     vmImage: ubuntu-latest
 
   steps:
-      # Step to retrieve Backend:BaseUrl from Azure App Configuration and create .env file
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '20.x'
+      displayName: 'Install Node.js'
+
     - task: AzureCLI@2
       inputs:
         azureSubscription: 'AzureConnection-Holocron' 
@@ -29,38 +33,20 @@ jobs:
             echo "Successfully retrieved BACKEND_BASE_URL"
           fi
 
-          echo "Setting VITE_BACKEND_BASE_URL"
+          echo "Setting the VITE_BACKEND_BASE_URL variable"
           echo "##vso[task.setvariable variable=VITE_BACKEND_BASE_URL]$BACKEND_BASE_URL"
-      displayName: 'Fetch Backend:BaseUrl and set as environment variable'
-
-    - script: |
-        echo "Exporting VITE_BACKEND_BASE_URL"
-        export VITE_BACKEND_BASE_URL=${VITE_BACKEND_BASE_URL}
-        echo "VITE_BACKEND_BASE_URL=$VITE_BACKEND_BASE_URL" >> $GITHUB_ENV
-      displayName: 'Export environment variables for build'
+      displayName: 'Fetch Backend:BaseUrl from Azure App Configuration'
 
     - script: |
         cd Holocron.Web
-        echo "Building frontend with VITE_BACKEND_BASE_URL=$VITE_BACKEND_BASE_URL"
+        echo "Using VITE_BACKEND_BASE_URL: $(VITE_BACKEND_BASE_URL)"
         npm install
         npm run build
       displayName: 'Install dependencies and build frontend'
 
-    - task: NodeTool@0
-      inputs:
-        versionSpec: '20.x'
-      displayName: 'Install Node.js'
-
-    - script: |
-        cd Holocron.Web
-        npm install
-        npm run build
-      displayName: 'Install dependencies and build frontend'
-      
     - task: AzureStaticWebApp@0
       inputs:
         app_location: "Holocron.Web/dist"
         config_file_location: "Holocron.Web"
         azure_static_web_apps_api_token: $(AZURE_STATIC_WEB_APPS_API_TOKEN)
       displayName: 'Deploy to Azure Static Web Apps'
-
