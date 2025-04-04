@@ -1,8 +1,9 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit'
 import { Inhabitant } from '../../types/inhabitants'
+import config from '../../config'
 
-// Define una variable central para la API URL
-const API_URL = process.env.VITE_BACKEND_BASE_URL
+
+const API_URL = config.API_URL
 
 interface InhabitantsState {
     list: Inhabitant[]
