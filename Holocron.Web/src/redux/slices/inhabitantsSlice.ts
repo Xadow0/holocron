@@ -2,7 +2,7 @@ import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit'
 import { Inhabitant } from '../../types/inhabitants'
 
 
-const API_URL = window?.VITE_BACKEND_BASE_URL
+const API_URL = (window as any)?.VITE_BACKEND_BASE_URL || 'https://default-url.com'
 
 interface InhabitantsState {
     list: Inhabitant[]
