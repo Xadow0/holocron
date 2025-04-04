@@ -1,75 +1,52 @@
-pool:
-  vmImage: 'ubuntu-latest'  # El agente que usará Azure DevOps (puedes cambiarlo por otro si lo prefieres)
+name: Deploy Frontend to Azure Static Web Apps
 
-variables:
-  azureSubscription: 'AzureConnection-Holocron'  # Nombre de tu suscripción de Azure
-  acrName: 'ContainerConnectionRegistry'  # Nombre de tu Azure Container Registry
-  imageName: 'holocron-api'  # Nombre de la imagen que se creará
-  containerAppName: 'holocron-backend'  # Nombre de la aplicación de contenedor que será desplegada
-  imageTag: '$(Build.BuildId)'  # Etiqueta única para cada construcción (ID de compilación)
-  dockerfilePath: './Holocron.API/Dockerfile'  # Ruta del archivo Dockerfile en tu repositorio
-  appConfigConnectionString: '$(AppConfigConnectionString)'  # Connection string de Azure App Configuration
+trigger:
+  branches:
+    include:
+      - Page-Init
 
-stages:
-- stage: Build
-  displayName: 'Build Docker Image'
-  jobs:
-  - job: BuildAndPush
-    displayName: 'Build and Push Docker Image to ACR'
-    steps:
-    - task: Docker@2
-      displayName: 'Log in to Azure Container Registry'
+jobs:
+- job: BuildAndDeploy
+  displayName: "Build and Deploy Frontend"
+  pool:
+    vmImage: ubuntu-latest
+
+  steps:
+    - task: NodeTool@0
       inputs:
-        containerRegistry: 'ContainerConnectionRegistry'  # El nombre de la conexión de servicio tipo Docker Registry creada
-        repository: 'https://holocron-container-app.wonderfulhill-24436021.spaincentral.azurecontainerapps.io/$(imageName)'  # Repositorio en ACR (usamos la URL del ACR)
-        command: 'login'  # El task Docker@2 maneja el login automáticamente
-        
-    - task: Docker@2
-      displayName: 'Build Docker Image'
-      inputs:
-        containerRegistry: 'ContainerConnectionRegistry'  # Conexión de servicio a tu ACR
-        repository: 'https://holocron-container-app.wonderfulhill-24436021.spaincentral.azurecontainerapps.io/$(imageName)'  # Nombre del repositorio en ACR
-        dockerfile: $(dockerfilePath)
-        buildContext: $(Build.SourcesDirectory)  # Directorio del código fuente
-        tags: $(imageTag)  # Usamos el ID de la compilación como tag de la imagen
+        versionSpec: '20.x'
+      displayName: 'Install Node.js'
 
-    - task: Docker@2
-      displayName: 'Push Docker Image to ACR'
-      inputs:
-        containerRegistry: 'ContainerConnectionRegistry'  # Conexión de servicio a tu ACR
-        repository: 'https://holocron-container-app.wonderfulhill-24436021.spaincentral.azurecontainerapps.io/$(imageName)'  # Nombre del repositorio en ACR
-        command: 'push'
-        tags: $(imageTag)  # Subimos la imagen al ACR con el tag
-
-- stage: Deploy
-  displayName: 'Deploy to Azure Container Apps'
-  dependsOn: Build
-  jobs:
-  - job: Deploy
-    displayName: 'Deploy to Azure Container Apps'
-    steps:
     - task: AzureCLI@2
-      displayName: 'Retrieve API_URL from Azure App Configuration'
       inputs:
-        azureSubscription: $(azureSubscription)
+        azureSubscription: 'AzureConnection-Holocron' 
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          # Obtener el valor de Backend:BaseUrl desde Azure App Configuration
-          API_URL=$(az appconfig kv show --name 'your-app-config-name' --key 'Backend:BaseUrl' --subscription $(azureSubscription) --query 'value' -o tsv)
-          echo "##vso[task.setvariable variable=API_URL]$API_URL"  # Establece el valor como variable en Azure DevOps
+          echo "Retrieving Backend:BaseUrl from Azure App Configuration..."
+          BACKEND_BASE_URL=$(az appconfig kv show --name holocron-appconfig --key "Backend:BaseUrl" --query "value" -o tsv | tr -d '"')
 
-    - task: AzureCLI@2
-      displayName: 'Deploy to Azure Container Apps'
+          if [ -z "$BACKEND_BASE_URL" ]; then
+            echo "Error: BACKEND_BASE_URL is empty"
+            exit 1
+          else
+            echo "Successfully retrieved BACKEND_BASE_URL"
+          fi
+
+          echo "Setting the VITE_BACKEND_BASE_URL variable"
+          echo "##vso[task.setvariable variable=VITE_BACKEND_BASE_URL]$BACKEND_BASE_URL"
+      displayName: 'Fetch Backend:BaseUrl from Azure App Configuration'
+
+    - script: |
+        cd Holocron.Web
+        echo "Using VITE_BACKEND_BASE_URL: $(VITE_BACKEND_BASE_URL)"
+        npm install
+        npm run build
+      displayName: 'Install dependencies and build frontend'
+
+    - task: AzureStaticWebApp@0
       inputs:
-        azureSubscription: $(azureSubscription)  # Suscripción de Azure configurada en Azure DevOps
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          az containerapp up \
-            --name $(containerAppName) \
-            --resource-group lsanwebapp01_group  # Grupo de recursos en Azure
-            --image $(acrName).azurecr.io/$(imageName):$(imageTag) \
-            --target-port 80  # Puerto al que expondrás el contenedor
-            --cpu 1 --memory 2Gi  # Configura los recursos de la aplicación (puedes ajustarlo)
-            --env-vars API_URL=$(API_URL)  # Pasar la variable de entorno con la API_URL obtenida
+        app_location: "Holocron.Web/dist"
+        config_file_location: "Holocron.Web"
+        azure_static_web_apps_api_token: $(AZURE_STATIC_WEB_APPS_API_TOKEN)
+      displayName: 'Deploy to Azure Static Web Apps'
