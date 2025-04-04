@@ -34,10 +34,26 @@ jobs:
           az account set --subscription $(AZURE_SUBSCRIPTION_ID)
 
           # Retrieve Backend:BaseUrl from Azure App Configuration
+          echo "Retrieving Backend:BaseUrl from Azure App Configuration..."
           BACKEND_BASE_URL=$(az appconfig kv show --name <YourAppConfigName> --key "Backend:BaseUrl" --query "value" -o tsv)
 
+          # Check if we have a valid value for BACKEND_BASE_URL
+          if [ -z "$BACKEND_BASE_URL" ]; then
+            echo "Error: BACKEND_BASE_URL is empty"
+            exit 1
+          else
+            echo "Successfully retrieved BACKEND_BASE_URL"
+          fi
+
           # Create .env file and add the BACKEND_BASE_URL variable
+          echo "Creating .env file with BACKEND_BASE_URL"
           echo "BACKEND_BASE_URL=$BACKEND_BASE_URL" > Holocron.Web/.env
+
+          # List the files in the directory to ensure the .env file is created
+          echo "Listing files in Holocron.Web:"
+          ls -la Holocron.Web
+      displayName: 'Fetch Backend:BaseUrl from Azure App Configuration and create .env file'
+
 
     - task: AzureStaticWebApp@0
       inputs:
