@@ -23,6 +23,22 @@ jobs:
         npm run build
       displayName: 'Install dependencies and build frontend'
 
+    # Step to retrieve Backend:BaseUrl from Azure App Configuration and create .env file
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: 'AzureConnection-Holocron' 
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          # Login to Azure
+          az account set --subscription $(AZURE_SUBSCRIPTION_ID)
+
+          # Retrieve Backend:BaseUrl from Azure App Configuration
+          BACKEND_BASE_URL=$(az appconfig kv show --name <YourAppConfigName> --key "Backend:BaseUrl" --query "value" -o tsv)
+
+          # Create .env file and add the BACKEND_BASE_URL variable
+          echo "BACKEND_BASE_URL=$BACKEND_BASE_URL" > Holocron.Web/.env
+
     - task: AzureStaticWebApp@0
       inputs:
         app_location: "Holocron.Web/dist"
