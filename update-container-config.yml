@@ -1,0 +1,34 @@
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  azureSubscription: 'AzureConnection-Holocron'
+  containerAppName: 'holocron-container-app'
+  resourceGroup: 'lsanwebapp01_group'
+  keyVaultName: 'holocron-keyvault'
+  appConfigName: 'holocron-app-config'
+
+stages:
+- stage: ConfigureApp
+  displayName: 'Update Container Environment Variables'
+  jobs:
+  - job: ConfigureEnv
+    displayName: 'Set Environment Variables'
+    steps:
+    - task: AzureCLI@2
+      displayName: 'Get Secrets from Key Vault and Update Container App'
+      inputs:
+        azureSubscription: '$(azureSubscription)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          SQL_CONNECTION_STRING=$(az keyvault secret show --vault-name $(keyVaultName) --name SqlConnectionString --query value -o tsv)
+          AZURE_STATIC_WEB_APPS_API_TOKEN=$(az keyvault secret show --vault-name $(keyVaultName) --name AzureStaticWebAppsApiToken --query value -o tsv)
+
+          az containerapp update \
+            --name $(containerAppName) \
+            --resource-group $(resourceGroup) \
+            --set-env-vars \
+              "ASPNETCORE_ENVIRONMENT=Development" \
+              "SqlConnectionString=$SQL_CONNECTION_STRING" \
+              "AzureStaticWebAppsApiToken=$AZURE_STATIC_WEB_APPS_API_TOKEN" 
