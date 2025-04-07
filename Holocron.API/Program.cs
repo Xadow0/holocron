@@ -24,6 +24,12 @@ builder.Configuration.AddAzureAppConfiguration(options =>
            .ConfigureKeyVault(kv => kv.SetCredential(new DefaultAzureCredential())); // Configure Key Vault using DefaultAzureCredential
 });
 
+//Insights telemetry configuration
+builder.Services.AddApplicationInsightsTelemetry(options =>
+{
+    options.ConnectionString = builder.Configuration["ApplicationInsights:Telemetry"];
+});
+
 // Database connection string
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration["SqlConnectionString"], sqlOptions =>
