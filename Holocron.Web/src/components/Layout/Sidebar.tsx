@@ -10,7 +10,13 @@ const useStyles = createUseStyles({
     color: 'white',
     padding: '20px',
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    alignItems: 'center'
+  },
+  logo: {
+    width: '100px',  // Logo width
+    height: 'auto',
+    marginBottom: '10px', // Space between logo and title
   },
   navLink: {
     color: 'white',
@@ -28,6 +34,7 @@ const Sidebar: React.FC = () => {
 
   return (
     <aside className={classes.sidebar}>
+      <img src="/logo.png" alt="Logotipo" className={classes.logo} />
       <h2>{t('common.project')}</h2>
       <nav>
         <Link to="/" className={classes.navLink}>{t('common.start')}</Link>

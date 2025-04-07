@@ -30,7 +30,7 @@ if (!string.IsNullOrWhiteSpace(appConfigEndpoint))
 }
 else
 {
-    throw new InvalidOperationException("AZURE_APPCONFIG_ENDPOINT no está configurado.");
+    throw new InvalidOperationException("AZURE_APPCONFIG_ENDPOINT value is missing.");
 }
 
 //Insights
