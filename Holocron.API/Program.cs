@@ -17,7 +17,7 @@ using System.Net.WebSockets;
 var builder = WebApplication.CreateBuilder(args);
 
 var appConfigEndpoint = Environment.GetEnvironmentVariable("AZURE_APPCONFIG_ENDPOINT");
-// Configure services to use Azure App Configuration
+
 if (!string.IsNullOrWhiteSpace(appConfigEndpoint))
 {
     builder.Configuration.AddAzureAppConfiguration(options =>
@@ -33,10 +33,9 @@ else
     throw new InvalidOperationException("AZURE_APPCONFIG_ENDPOINT value is missing.");
 }
 
-//Insights
 builder.Services.AddApplicationInsightsTelemetry(options =>
 {
-    options.ConnectionString = builder.Configuration["ApplicationInsights:Telemetry"];
+    options.ConnectionString = builder.Configuration["AZURE_INSIGHT_URL"];
 });
 
 // Database connection string

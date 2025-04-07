@@ -35,33 +35,23 @@ namespace Holocron.Tests.Application.Features.Inhabitants.Handlers
             {
                 Name = "Han Solo",
                 Species = "Human",
-                Origin = null,
+                Origin = "Corellia",
                 IsSuspectedRebel = true
             };
 
-            // Crear la entidad que será añadida por el repositorio
-            var addedInhabitant = new Inhabitant(
-                command.Name,
-                command.Species,
-                command.Origin,
-                command.IsSuspectedRebel
-            );
-
             var expectedDto = new InhabitantReadDto
             {
-                Id = addedInhabitant.Id,
-                Name = addedInhabitant.Name,
-                Species = addedInhabitant.Species,
-                Origin = addedInhabitant.Origin,
-                IsSuspectedRebel = addedInhabitant.IsSuspectedRebel,
-                CreatedAt = addedInhabitant.CreatedAt
+                Id = Guid.NewGuid(),
+                Name = command.Name,
+                Species = command.Species,
+                Origin = command.Origin,
+                IsSuspectedRebel = command.IsSuspectedRebel,
+                CreatedAt = DateTime.UtcNow
             };
 
-            // Mock para el repositorio: devuelve la entidad Inhabitant después de agregarla
             _mockRepository.Setup(r => r.AddAsync(It.IsAny<Inhabitant>()))
-                .ReturnsAsync(addedInhabitant);
+                .ReturnsAsync((Inhabitant i) => i);
 
-            // Mock para el Mapper: mapea la entidad Inhabitant a un InhabitantReadDto
             _mockMapper.Setup(m => m.Map<InhabitantReadDto>(It.IsAny<Inhabitant>()))
                 .Returns(expectedDto);
 
@@ -72,7 +62,6 @@ namespace Holocron.Tests.Application.Features.Inhabitants.Handlers
             Assert.NotNull(result);
             Assert.Equal(expectedDto, result);
 
-            // Verifica que AddAsync fue llamado correctamente
             _mockRepository.Verify(r => r.AddAsync(It.Is<Inhabitant>(i =>
                 i.Name == command.Name &&
                 i.Species == command.Species &&
@@ -80,11 +69,8 @@ namespace Holocron.Tests.Application.Features.Inhabitants.Handlers
                 i.IsSuspectedRebel == command.IsSuspectedRebel)),
                 Times.Once);
 
-            // Verifica que Map fue llamado correctamente
             _mockMapper.Verify(m => m.Map<InhabitantReadDto>(It.IsAny<Inhabitant>()), Times.Once);
         }
-
-
 
         [Fact]
         public async Task Handle_WithNullProperties_ThrowsArgumentNullException()
