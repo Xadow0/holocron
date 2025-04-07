@@ -12,17 +12,26 @@ using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using Azure.Identity;
 using Holocron.Infrastructure.SeedData;
 using Microsoft.OpenApi.Models;
+using System.Net.WebSockets;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var appConfigEndpoint = Environment.GetEnvironmentVariable("AZURE_APPCONFIG_ENDPOINT");
 // Configure services to use Azure App Configuration
-builder.Configuration.AddAzureAppConfiguration(options =>
+if (!string.IsNullOrWhiteSpace(appConfigEndpoint))
 {
-    options.Connect("Endpoint=https://holocron-appconfig.azconfig.io")
-           .Select(KeyFilter.Any) // Select All Keys
-           .Select(LabelFilter.Null)
-           .ConfigureKeyVault(kv => kv.SetCredential(new DefaultAzureCredential())); // Configure Key Vault using DefaultAzureCredential
-});
+    builder.Configuration.AddAzureAppConfiguration(options =>
+    {
+        options.Connect(new Uri(appConfigEndpoint), new DefaultAzureCredential())
+               .Select(KeyFilter.Any)
+               .Select(LabelFilter.Null)
+               .ConfigureKeyVault(kv => kv.SetCredential(new DefaultAzureCredential()));
+    });
+}
+else
+{
+    throw new InvalidOperationException("AZURE_APPCONFIG_ENDPOINT no está configurado.");
+}
 
 //Insights
 builder.Services.AddApplicationInsightsTelemetry(options =>
