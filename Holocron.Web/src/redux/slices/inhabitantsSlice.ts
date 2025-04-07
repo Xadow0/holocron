@@ -2,7 +2,7 @@ import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit'
 import { Inhabitant } from '../../types/inhabitants'
 
 
-const API_URL = 'https://holocron-container-app.wonderfulhill-24436021.spaincentral.azurecontainerapps.io/api/'
+const API_URL = 'https://holocron-container-app.wonderfulhill-24436021.spaincentral.azurecontainerapps.io/api/inhabitants'
 
 interface InhabitantsState {
     list: Inhabitant[]
