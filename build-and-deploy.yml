@@ -1,0 +1,65 @@
+# build-and-deploy.yaml
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  containerRegistry: 'holocronregistry.azurecr.io'
+  imageName: 'holocron-api'
+  azureSubscription: 'AzureConnection-Holocron'
+  containerAppName: 'holocron-container-app'
+  resourceGroup: 'lsanwebapp01_group'
+
+stages:
+- stage: BuildAndDeploy
+  displayName: 'Build and Deploy Docker Image'
+  jobs:
+  - job: BuildAndPush
+    displayName: 'Build and Push Image'
+    steps:
+
+    - task: Docker@2
+      displayName: 'Login to ACR'
+      inputs:
+        command: login
+        containerRegistry: 'ContainerConnectionRegistry'
+
+    - task: Docker@2
+      displayName: 'Build Docker Image'
+      inputs:
+        command: build
+        containerRegistry: 'ContainerConnectionRegistry'
+        repository: '$(imageName)'
+        dockerfile: 'Dockerfile'
+        tags: '$(Build.BuildId)'
+
+    - task: Docker@2
+      displayName: 'Push Image to ACR'
+      inputs:
+        command: push
+        containerRegistry: 'ContainerConnectionRegistry'
+        repository: '$(imageName)'
+        tags: '$(Build.BuildId)'
+
+    - task: AzureCLI@2
+      displayName: 'Update Container App Image'
+      inputs:
+        azureSubscription: '$(azureSubscription)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          echo "Waiting for image availability..."
+          for i in {1..10}; do
+            az acr repository show-tags --name holocronregistry --repository holocron-api --output table | grep $(Build.BuildId)
+            if [ $? -eq 0 ]; then
+              echo "Image found!"
+              break
+            fi
+            echo "Image not yet available. Retrying in 10 seconds..."
+            sleep 10
+          done
+
+          az containerapp update \
+            --name $(containerAppName) \
+            --resource-group $(resourceGroup) \
+            --image $(containerRegistry)/$(imageName):$(Build.BuildId)
+
