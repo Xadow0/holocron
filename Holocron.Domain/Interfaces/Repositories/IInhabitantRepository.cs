@@ -9,6 +9,8 @@ namespace Holocron.Domain.Interfaces.Repositories
         Task<Inhabitant> AddAsync(Inhabitant inhabitant);
         Task UpdateAsync(Inhabitant inhabitant);
         Task DeleteAsync(Guid id);
-        Task<IEnumerable<Inhabitant>> GetRebelInhabitantsAsync();
+        Task<IEnumerable<Inhabitant>> GetRebelsAsync();
+        Task<IEnumerable<Inhabitant>> SearchInhabitantsAsync(string query);
+
     }
 }

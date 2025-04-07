@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Holocron.Domain.Entities;
+﻿using Holocron.Domain.Entities;
 using Holocron.Domain.Interfaces.Repositories;
 using Holocron.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace Holocron.Infrastructure.Repositories
 {
@@ -14,18 +11,17 @@ namespace Holocron.Infrastructure.Repositories
 
         public InhabitantRepository(ApplicationDbContext context)
         {
-            _context = context;
-        }
-
-        public async Task<Inhabitant> GetByIdAsync(Guid id)
-        {
-            return await _context.Inhabitants
-                .FirstOrDefaultAsync(i => i.Id == id);
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         public async Task<IEnumerable<Inhabitant>> GetAllAsync()
         {
-            return await _context.Inhabitants.ToListAsync();
+            return await _context.Inhabitants.AsNoTracking().ToListAsync();
+        }
+
+        public async Task<Inhabitant?> GetByIdAsync(Guid id)
+        {
+            return await _context.Inhabitants.FindAsync(id);
         }
 
         public async Task<Inhabitant> AddAsync(Inhabitant inhabitant)
@@ -43,7 +39,7 @@ namespace Holocron.Infrastructure.Repositories
 
         public async Task DeleteAsync(Guid id)
         {
-            var inhabitant = await GetByIdAsync(id);
+            var inhabitant = await _context.Inhabitants.FindAsync(id);
             if (inhabitant != null)
             {
                 _context.Inhabitants.Remove(inhabitant);
@@ -51,11 +47,19 @@ namespace Holocron.Infrastructure.Repositories
             }
         }
 
-        public async Task<IEnumerable<Inhabitant>> GetRebelInhabitantsAsync()
+        public async Task<IEnumerable<Inhabitant>> GetRebelsAsync()
         {
             return await _context.Inhabitants
                 .Where(i => i.IsSuspectedRebel)
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<Inhabitant>> SearchInhabitantsAsync(string query)
+        {
+            return await _context.Inhabitants
+                .Where(i => i.Name.Contains(query) || i.Species.Contains(query))
+                .ToListAsync();
+        }
+
     }
 }

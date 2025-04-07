@@ -1,0 +1,110 @@
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  containerRegistry: 'holocronregistry.azurecr.io'
+  imageName: 'holocron-api'
+  buildConfiguration: 'Development'
+  azureSubscription: 'AzureConnection-Holocron'
+  containerAppName: 'holocron-container-app'  # Container App
+  resourceGroup: 'lsanwebapp01_group'  # Grupo de recursos de Azure
+  keyVaultName: 'holocron-keyvault'
+  appConfigName: 'holocron-app-config'  #  App Configuration
+
+stages:
+- stage: Build
+  displayName: 'Construir y subir imagen a ACR'
+  jobs:
+  - job: BuildAndPush
+    displayName: 'Construcción y Push a ACR'
+    steps:
+
+    - task: Docker@2
+      displayName: 'Autenticarse en ACR'
+      inputs:
+        command: login
+        containerRegistry: 'ContainerConnectionRegistry'
+
+    - task: Docker@2
+      displayName: 'Construir la imagen Docker'
+      inputs:
+        command: build
+        containerRegistry: 'ContainerConnectionRegistry'
+        repository: 'holocron-api'
+        dockerfile: 'Dockerfile'
+        tags: '$(Build.BuildId)'
+
+    - task: Docker@2
+      displayName: 'Push de imagen a ACR'
+      inputs:
+        command: push
+        containerRegistry: 'ContainerConnectionRegistry'
+        repository: 'holocron-api'
+        tags: '$(Build.BuildId)'
+
+- stage: Deploy
+  displayName: 'Desplegar en Azure Container Apps'
+  dependsOn: Build
+  jobs:
+  - job: DeployContainerApp
+    displayName: 'Desplegar en Azure Container App'
+    steps:
+    - task: AzureCLI@2
+      displayName: 'Obtener Backend:BaseUrl desde Azure App Configuration'
+      inputs:
+        azureSubscription: '$(azureSubscription)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          # Obtener la clave Backend:BaseUrl desde Azure App Configuration
+          BACKEND_BASE_URL=$(az appconfig kv show --name $(appConfigName) --key "Backend:BaseUrl" --query "value" -o tsv)
+          echo "BACKEND_BASE_URL=$BACKEND_BASE_URL" >> $(Build.ArtifactStagingDirectory)/.env
+
+    - task: AzureCLI@2
+      displayName: 'Configurar Variables de Entorno desde Key Vault'
+      inputs:
+        azureSubscription: '$(azureSubscription)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          # Obtain SqlConnectionString from Key Vault
+          SQL_CONNECTION_STRING=$(az keyvault secret show --vault-name $(keyVaultName) --name SqlConnectionString --query value -o tsv)
+          # Obtain Static Web Apps token from Key Vault
+          AZURE_STATIC_WEB_APPS_API_TOKEN=$(az keyvault secret show --vault-name $(keyVaultName) --name AzureStaticWebAppsApiToken --query value -o tsv)
+
+          # Update container Apps
+          az containerapp update \
+            --name $(containerAppName) \
+            --resource-group $(resourceGroup) \
+            --set-env-vars "SqlConnectionString=$SQL_CONNECTION_STRING" "AzureStaticWebAppsApiToken=$AZURE_STATIC_WEB_APPS_API_TOKEN" "BackendBaseUrl=$BACKEND_BASE_URL"
+
+    - task: AzureCLI@2
+      displayName: 'Esperar a que la imagen esté disponible en ACR'
+      inputs:
+        azureSubscription: '$(azureSubscription)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          echo "Verificando disponibilidad de la imagen en ACR..."
+          for i in {1..10}; do
+            az acr repository show-tags --name holocronregistry --repository holocron-api --output table | grep $(Build.BuildId)
+            if [ $? -eq 0 ]; then
+              echo "Imagen encontrada en ACR!"
+              break
+            fi
+            echo "Imagen aún no disponible. Reintentando en 10 segundos..."
+            sleep 10
+          done
+
+    - task: AzureCLI@2
+      displayName: 'Actualizar imagen en Azure Container App'
+      inputs:
+        azureSubscription: '$(azureSubscription)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az containerapp update \
+            --name $(containerAppName) \
+            --resource-group $(resourceGroup) \
+            --image $(containerRegistry)/$(imageName):$(Build.BuildId) \
+            --set-env-vars "ASPNETCORE_ENVIRONMENT=Development"

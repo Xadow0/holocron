@@ -17,11 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Services\" />
-    <Folder Include="Persistence\" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <ProjectReference Include="..\Holocron.Application\Holocron.Application.csproj" />
     <ProjectReference Include="..\Holocron.Domain\Holocron.Domain.csproj" />
   </ItemGroup>
 
