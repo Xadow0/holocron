@@ -19,6 +19,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Holocron.API\Holocron.API.csproj" />
+    <ProjectReference Include="..\Holocron.Application\Holocron.Application.csproj" />
+    <ProjectReference Include="..\Holocron.Domain\Holocron.Domain.csproj" />
+    <ProjectReference Include="..\Holocron.Infrastructure\Holocron.Infrastructure.csproj" />
+    <ProjectReference Include="..\Holocron.Web\Holocron.Web.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Using Include="Xunit" />
   </ItemGroup>
 
