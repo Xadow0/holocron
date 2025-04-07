@@ -17,29 +17,8 @@ jobs:
         versionSpec: '20.x'
       displayName: 'Install Node.js'
 
-    - task: AzureCLI@2
-      inputs:
-        azureSubscription: 'AzureConnection-Holocron' 
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
-        inlineScript: |
-          echo "Retrieving Backend:BaseUrl from Azure App Configuration..."
-          BACKEND_BASE_URL=$(az appconfig kv show --name holocron-appconfig --key "Backend:BaseUrl" --query "value" -o tsv | tr -d '"')
-
-          if [ -z "$BACKEND_BASE_URL" ]; then
-            echo "Error: BACKEND_BASE_URL is empty"
-            exit 1
-          else
-            echo "Successfully retrieved BACKEND_BASE_URL"
-          fi
-
-          echo "Setting the VITE_BACKEND_BASE_URL variable"
-          echo "##vso[task.setvariable variable=VITE_BACKEND_BASE_URL]$BACKEND_BASE_URL"
-      displayName: 'Fetch Backend:BaseUrl from Azure App Configuration'
-
     - script: |
         cd Holocron.Web
-        echo "Using VITE_BACKEND_BASE_URL: $(VITE_BACKEND_BASE_URL)"
         npm install
         npm run build
       displayName: 'Install dependencies and build frontend'
