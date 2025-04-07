@@ -6,10 +6,10 @@ variables:
   imageName: 'holocron-api'
   buildConfiguration: 'Development'
   azureSubscription: 'AzureConnection-Holocron'
-  containerAppName: 'holocron-container-app'  # Nombre del Container App
+  containerAppName: 'holocron-container-app'  # Container App
   resourceGroup: 'lsanwebapp01_group'  # Grupo de recursos de Azure
   keyVaultName: 'holocron-keyvault'
-  appConfigName: 'holocron-app-config'  # Nombre de tu App Configuration
+  appConfigName: 'holocron-app-config'  #  App Configuration
 
 stages:
 - stage: Build
@@ -67,12 +67,12 @@ stages:
         scriptType: 'bash'
         scriptLocation: 'inlineScript'
         inlineScript: |
-          # Obtener el secreto SqlConnectionString desde Key Vault
+          # Obtain SqlConnectionString from Key Vault
           SQL_CONNECTION_STRING=$(az keyvault secret show --vault-name $(keyVaultName) --name SqlConnectionString --query value -o tsv)
-          # Obtener el token de Static Web Apps desde Key Vault
+          # Obtain Static Web Apps token from Key Vault
           AZURE_STATIC_WEB_APPS_API_TOKEN=$(az keyvault secret show --vault-name $(keyVaultName) --name AzureStaticWebAppsApiToken --query value -o tsv)
 
-          # Actualizar el Container App con las variables de entorno necesarias
+          # Update container Apps
           az containerapp update \
             --name $(containerAppName) \
             --resource-group $(resourceGroup) \
