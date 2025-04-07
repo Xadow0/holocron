@@ -1,10 +1,5 @@
 name: Deploy Frontend to Azure Static Web Apps
 
-trigger:
-  branches:
-    include:
-      - Page-Init
-
 jobs:
 - job: BuildAndDeploy
   displayName: "Build and Deploy Frontend"
