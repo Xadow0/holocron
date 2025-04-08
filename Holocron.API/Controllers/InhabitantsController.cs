@@ -1,5 +1,7 @@
 ﻿using Holocron.Application.DTOs.Inhabitants;
-using Holocron.Application.Interfaces.Services;
+using Holocron.Application.Features.Inhabitants.Commands;
+using Holocron.Application.Features.Inhabitants.Queries;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Holocron.API.Controllers
@@ -8,63 +10,63 @@ namespace Holocron.API.Controllers
     [Route("api/inhabitants")]
     public class InhabitantsController : ControllerBase
     {
-        private readonly IInhabitantService _inhabitantService;
+        private readonly IMediator _mediator;
 
-        public InhabitantsController(IInhabitantService inhabitantService)
+        public InhabitantsController(IMediator mediator)
         {
-            _inhabitantService = inhabitantService;
+            _mediator = mediator;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var inhabitants = await _inhabitantService.GetAllInhabitantsAsync();
-            return Ok(inhabitants);
+            var result = await _mediator.Send(new GetAllInhabitantsQuery());
+            return Ok(result);
         }
 
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var inhabitant = await _inhabitantService.GetInhabitantByIdAsync(id);
-            if (inhabitant == null)
+            var result = await _mediator.Send(new GetInhabitantByIdQuery(id));
+            if (result == null)
                 return NotFound(new { Message = "Habitante no encontrado" });
 
-            return Ok(inhabitant);
+            return Ok(result);
         }
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] InhabitantCreateDto dto)
         {
-            await _inhabitantService.CreateInhabitantAsync(dto);
-            return CreatedAtAction(nameof(GetAll), new { Message = "Habitante creado exitosamente" });
+            var result = await _mediator.Send(new CreateInhabitantCommand(dto));
+            return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
         }
 
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> Update(Guid id, [FromBody] InhabitantCreateDto dto)
         {
-            await _inhabitantService.UpdateInhabitantAsync(id, dto);
-            return Ok(new { Message = "Habitante actualizado exitosamente" });
+            var result = await _mediator.Send(new UpdateInhabitantCommand(id, dto));
+            return Ok(result);
         }
 
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            await _inhabitantService.DeleteInhabitantAsync(id);
+            await _mediator.Send(new DeleteInhabitantCommand(id));
             return Ok(new { Message = "Habitante eliminado exitosamente" });
         }
 
         [HttpGet("rebels")]
         public async Task<IActionResult> GetRebels()
         {
-            var rebels = await _inhabitantService.GetRebelsAsync();
-            return Ok(rebels);
+            var result = await _mediator.Send(new GetRebelInhabitantsQuery());
+            return Ok(result);
         }
 
         [HttpGet("search")]
         public async Task<IActionResult> Search([FromQuery] string query)
         {
-            var inhabitants = await _inhabitantService.SearchInhabitantsAsync(query);
-            return Ok(inhabitants);
+            var result = await _mediator.Send(new SearchInhabitantsQuery(query));
+            return Ok(result);
         }
     }
 }

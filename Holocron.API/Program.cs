@@ -1,18 +1,16 @@
 using Holocron.API.Middlewares;
 using Holocron.Application.Configurations;
 using Holocron.Infrastructure;
-using Holocron.Infrastructure.Configurations;
 using Holocron.Infrastructure.Persistence;
-using Holocron.Application.Interfaces.Services;
 using Holocron.Domain.Interfaces.Repositories;
 using Holocron.Infrastructure.Repositories;
-using Holocron.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration.AzureAppConfiguration;
 using Azure.Identity;
 using Holocron.Infrastructure.SeedData;
 using Microsoft.OpenApi.Models;
 using System.Net.WebSockets;
+using static System.Net.WebRequestMethods;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,7 +58,6 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddApplicationServices();
-builder.Services.AddInfrastructureServices(builder.Configuration);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

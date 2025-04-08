@@ -9,34 +9,31 @@ using Holocron.Application.DTOs.Inhabitants;
 
 namespace Holocron.Application.Features.Inhabitants.Handlers
 {
-    public class CreateInhabitantCommandHandler
-        : IRequestHandler<CreateInhabitantCommand, InhabitantReadDto>
+    public class CreateInhabitantCommandHandler : IRequestHandler<CreateInhabitantCommand, InhabitantReadDto>
     {
-        private readonly IInhabitantRepository _repository;
-        private readonly IMapper _mapper;
+        private readonly IInhabitantRepository _inhabitantRepository;
 
-        public CreateInhabitantCommandHandler(
-            IInhabitantRepository repository,
-            IMapper mapper)
+        public CreateInhabitantCommandHandler(IInhabitantRepository inhabitantRepository)
         {
-            _repository = repository;
-            _mapper = mapper;
+            _inhabitantRepository = inhabitantRepository;
         }
 
-        public async Task<InhabitantReadDto> Handle(
-            CreateInhabitantCommand request,
-            CancellationToken cancellationToken)
+        public async Task<InhabitantReadDto> Handle(CreateInhabitantCommand request, CancellationToken cancellationToken)
         {
-            var inhabitant = new Inhabitant(
-                request.Name,
-                request.Species,
-                request.Origin,
-                request.IsSuspectedRebel
-            );
+            var dto = request.InhabitantDto;
+            var inhabitant = new Inhabitant(dto.Name, dto.Species, dto.Origin, dto.IsSuspectedRebel);
 
-            await _repository.AddAsync(inhabitant);
+            await _inhabitantRepository.AddAsync(inhabitant);
 
-            return _mapper.Map<InhabitantReadDto>(inhabitant);
+            return new InhabitantReadDto
+            {
+                Id = inhabitant.Id,
+                Name = inhabitant.Name,
+                Species = inhabitant.Species,
+                Origin = inhabitant.Origin,
+                IsSuspectedRebel = inhabitant.IsSuspectedRebel,
+                CreatedAt = inhabitant.CreatedAt
+            };
         }
     }
 }

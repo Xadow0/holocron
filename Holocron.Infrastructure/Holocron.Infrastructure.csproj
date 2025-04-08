@@ -21,4 +21,8 @@
     <ProjectReference Include="..\Holocron.Domain\Holocron.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Configurations\" />
+  </ItemGroup>
+
 </Project>
