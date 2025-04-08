@@ -76,21 +76,26 @@ namespace Holocron.Application.Tests.Features.Inhabitants.Handlers
             _mockRepository.Verify(repo => repo.GetByIdAsync(nonExistingId), Times.Once);
         }
 
-        [Fact]
-        public async Task Handle_RepositoryThrowsException_ShouldPropagateException()
+        [Theory]
+        [InlineData("Database connection error")]
+        [InlineData("Entity validation failed")]
+        [InlineData("Permission denied")]
+        public async Task Handle_RepositoryThrowsException_ShouldPropagateException(string errorMessage)
         {
             // Arrange
             var inhabitantId = Guid.NewGuid();
 
             _mockRepository
                 .Setup(repo => repo.GetByIdAsync(inhabitantId))
-                .ThrowsAsync(new Exception("Database connection error"));
+                .ThrowsAsync(new Exception(errorMessage));
 
             var query = new GetInhabitantByIdQuery (inhabitantId);
 
             // Act & Assert
-            await Assert.ThrowsAsync<Exception>(() =>
+            var exception = await Assert.ThrowsAsync<Exception>(() =>
                 _handler.Handle(query, CancellationToken.None));
+
+            Assert.Equal(errorMessage, exception.Message);
         }
     }
 }
