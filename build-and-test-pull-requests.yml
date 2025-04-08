@@ -27,11 +27,10 @@ steps:
     projects: '**/*.csproj'
 
 - task: DotNetCoreCLI@2
-  displayName: 'Build solution'
   inputs:
-    command: 'build'
-    projects: '**/*.csproj'
-    arguments: '--configuration $(buildConfiguration)'
+    command: 'test'
+    projects: '**/Holocron.Tests.csproj'
+    arguments: '--configuration Release --verbosity detailed'
 
 - task: DotNetCoreCLI@2
   displayName: 'Run Tests'
