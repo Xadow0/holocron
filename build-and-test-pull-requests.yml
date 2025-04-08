@@ -1,12 +1,9 @@
-trigger:
-  branches:
-    include:
-      - master
+trigger: none  # Evita ejecuciones automáticas en push
 
 pr:
   branches:
     include:
-      - master
+      - master  # Se ejecutará en pull requests hacia master
 
 pool:
   vmImage: 'windows-latest'
@@ -18,7 +15,8 @@ steps:
 - task: UseDotNet@2
   inputs:
     packageType: 'sdk'
-    version: '8.0.x'
+    version: '8.x.x'  # Usa la versión de .NET que uses en tu proyecto
+    installationPath: $(Agent.ToolsDirectory)/dotnet
 
 - task: DotNetCoreCLI@2
   displayName: 'Restore NuGet packages'
@@ -27,21 +25,21 @@ steps:
     projects: '**/*.csproj'
 
 - task: DotNetCoreCLI@2
+  displayName: 'Build solution'
   inputs:
-    command: 'test'
-    projects: '**/Holocron.Tests.csproj'
-    arguments: '--configuration Release --verbosity detailed'
+    command: 'build'
+    projects: '**/*.csproj'
+    arguments: '--configuration $(buildConfiguration)'
 
 - task: DotNetCoreCLI@2
-  displayName: 'Run Tests'
+  displayName: 'Run tests'
   inputs:
     command: 'test'
     projects: 'Holocron.Tests/Holocron.Tests.csproj'
-    arguments: '--configuration $(buildConfiguration) --no-build --logger trx;LogFileName=TestResults.trx --results-directory $(Build.SourcesDirectory)/TestResults'
-
+    arguments: '--configuration $(buildConfiguration) --no-build --logger trx'
 
 - task: PublishTestResults@2
   inputs:
-    testResultsFiles: '$(Build.SourcesDirectory)/TestResults/*.trx'
-    testRunTitle: 'Holocron Test Results'
-    failTaskOnMissingResultsFile: true
+    testResultsFormat: 'VSTest'
+    testResultsFiles: '**/TestResults/*.trx'
+    failTaskOnFailedTests: true
