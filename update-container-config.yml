@@ -29,6 +29,5 @@ stages:
             --name $(containerAppName) \
             --resource-group $(resourceGroup) \
             --set-env-vars \
-              "ASPNETCORE_ENVIRONMENT=Development" \
               "SqlConnectionString=$SQL_CONNECTION_STRING" \
               "AzureStaticWebAppsApiToken=$AZURE_STATIC_WEB_APPS_API_TOKEN" 
