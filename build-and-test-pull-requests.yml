@@ -1,9 +1,9 @@
-trigger: none  # Evita ejecuciones automáticas en push
+trigger: none 
 
 pr:
   branches:
     include:
-      - master  # Se ejecutará en pull requests hacia master
+      - master  # Execute with master Pull Request
 
 pool:
   vmImage: 'windows-latest'
@@ -15,7 +15,7 @@ steps:
 - task: UseDotNet@2
   inputs:
     packageType: 'sdk'
-    version: '8.0.x'  # Usa la versión de .NET que uses en tu proyecto
+    version: '8.0.x'  # Format 8.x.x
     installationPath: $(Agent.ToolsDirectory)/dotnet
 
 - task: DotNetCoreCLI@2
