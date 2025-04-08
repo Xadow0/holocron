@@ -16,7 +16,8 @@ using System.Net.WebSockets;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var appConfigEndpoint = Environment.GetEnvironmentVariable("AZURE_APPCONFIG_ENDPOINT");
+builder.Configuration.AddEnvironmentVariables();
+var appConfigEndpoint = builder.Configuration["AZURE_APPCONFIG_ENDPOINT"];
 
 if (!string.IsNullOrWhiteSpace(appConfigEndpoint))
 {
