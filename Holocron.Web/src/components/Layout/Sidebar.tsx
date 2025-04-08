@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 const useStyles = createUseStyles({
   sidebar: {
     width: '250px',
-    backgroundColor: '#2c3e50',
+    backgroundColor: '#13171C',
     color: 'white',
     padding: '20px',
     display: 'flex',
