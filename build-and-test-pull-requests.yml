@@ -38,9 +38,10 @@ steps:
   inputs:
     command: 'test'
     projects: 'Holocron.Tests/Holocron.Tests.csproj'
-    arguments: '--configuration $(buildConfiguration) --no-build --logger trx'
+    arguments: '--configuration $(buildConfiguration) --no-build --logger "trx;LogFileName=TestResults.trx" --results-directory "$(Build.SourcesDirectory)/TestResults"'
 
 - task: PublishTestResults@2
   inputs:
-    testResultsFiles: '**/TestResults/*.trx'
+    testResultsFiles: '$(Build.SourcesDirectory)/TestResults/*.trx'
     testRunTitle: 'Holocron Test Results'
+    failTaskOnMissingResultsFile: true
