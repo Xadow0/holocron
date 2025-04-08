@@ -13,6 +13,7 @@ using Azure.Identity;
 using Holocron.Infrastructure.SeedData;
 using Microsoft.OpenApi.Models;
 using System.Net.WebSockets;
+using static System.Net.WebRequestMethods;
 
 var builder = WebApplication.CreateBuilder(args);
 
