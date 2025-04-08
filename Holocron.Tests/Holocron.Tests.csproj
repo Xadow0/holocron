@@ -30,9 +30,4 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Application\Features\Inhabitants\Handlers\" />
-    <Folder Include="Application\Services\" />
-  </ItemGroup>
-
 </Project>
