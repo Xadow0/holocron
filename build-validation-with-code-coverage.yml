@@ -1,0 +1,59 @@
+trigger: none
+
+pr:
+  branches:
+    include:
+      - master  # Execute with master Pull Request
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  coverageDirectory: '$(Build.SourcesDirectory)/TestResults/Coverage'
+
+steps:
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '8.0.x'  # Format 8.x.x
+    installationPath: $(Agent.ToolsDirectory)/dotnet
+
+- task: DotNetCoreCLI@2
+  displayName: 'Restore NuGet packages'
+  inputs:
+    command: 'restore'
+    projects: '**/*.csproj'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Build solution'
+  inputs:
+    command: 'build'
+    projects: '**/*.csproj'
+    arguments: '--configuration $(buildConfiguration)'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Run tests with coverage'
+  inputs:
+    command: 'test'
+    projects: 'Holocron.Tests/Holocron.Tests.csproj'
+    arguments: >
+      --configuration $(buildConfiguration) 
+      --no-build 
+      --logger trx 
+      /p:CollectCoverage=true 
+      /p:CoverletOutput=$(coverageDirectory)/ 
+      /p:CoverletOutputFormat=cobertura
+
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'VSTest'
+    testResultsFiles: '**/TestResults/*.trx'
+    failTaskOnFailedTests: true
+
+- task: PublishCodeCoverageResults@1
+  displayName: 'Publish code coverage'
+  inputs:
+    codeCoverageTool: 'Cobertura'
+    summaryFileLocation: '$(coverageDirectory)/coverage.cobertura.xml'
+    reportDirectory: '$(coverageDirectory)'
