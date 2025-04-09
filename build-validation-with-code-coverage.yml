@@ -51,9 +51,11 @@ steps:
     testResultsFiles: '**/TestResults/*.trx'
     failTaskOnFailedTests: true
 
-- task: PublishCodeCoverageResults@1
+- task: PublishCodeCoverageResults@2
   displayName: 'Publish code coverage'
   inputs:
-    codeCoverageTool: 'Cobertura'
     summaryFileLocation: '$(coverageDirectory)/coverage.cobertura.xml'
-    reportDirectory: '$(coverageDirectory)'
+    pathToSources: '$(Build.SourcesDirectory)'
+    failIfCoverageEmpty: true
+
+
