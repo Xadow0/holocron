@@ -9,4 +9,9 @@ const api = axios.create({
   },
 })
 
+export const getPlanets = async () => {
+  const response = await api.get('/planets')
+  return response.data
+}
+
 export default api
