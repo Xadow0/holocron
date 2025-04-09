@@ -39,6 +39,7 @@ const Sidebar: React.FC = () => {
       <nav>
         <Link to="/" className={classes.navLink}>{t('common.start')}</Link>
         <Link to="/inhabitants" className={classes.navLink}>{t('common.habitants')}</Link>
+        <Link to="/planets" className={classes.navLink}>{t('common.planets')}</Link>
       </nav>
     </aside>
   )
