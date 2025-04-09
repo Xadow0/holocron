@@ -62,7 +62,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddApplicationServices();
-
+builder.Services.AddApiServices();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
