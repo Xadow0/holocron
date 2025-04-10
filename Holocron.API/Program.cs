@@ -29,7 +29,11 @@ if (!string.IsNullOrWhiteSpace(appConfigEndpoint))
 }
 else
 {
-    throw new InvalidOperationException("AZURE_APPCONFIG_ENDPOINT value is missing.");
+    builder.Configuration
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+        .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+        .AddEnvironmentVariables();
 }
 
 builder.Services.AddApplicationInsightsTelemetry(options =>
@@ -58,7 +62,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddApplicationServices();
-
+builder.Services.AddApiServices();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
