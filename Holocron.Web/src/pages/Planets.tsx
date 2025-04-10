@@ -1,15 +1,16 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchPlanets } from '../redux/slices/planetsSlice'
-import { RootState } from '../redux/store'
+import type { RootState, AppDispatch } from '../redux/store' // ? Importa AppDispatch
 import { Orbit, Users, Cloud, Mountain } from 'lucide-react'
 
 const Planets = () => {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch<AppDispatch>() // ? Tipamos useDispatch
+
   const { planets, loading, error } = useSelector((state: RootState) => state.planets)
 
   useEffect(() => {
-    dispatch(fetchPlanets())
+    dispatch(fetchPlanets()) // ? Ahora TypeScript acepta el thunk
   }, [dispatch])
 
   if (loading) {
@@ -37,16 +38,24 @@ const Planets = () => {
           <thead className="bg-gray-700 text-white">
             <tr>
               <th className="px-6 py-4 text-left text-sm font-semibold tracking-wider">
-                <div className="flex items-center gap-2"><Orbit className="w-5 h-5 text-yellow-400" />Planet</div>
+                <div className="flex items-center gap-2">
+                  <Orbit className="w-5 h-5 text-yellow-400" />Planet
+                </div>
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold tracking-wider">
-                <div className="flex items-center gap-2"><Cloud className="w-5 h-5 text-blue-400" />Climate</div>
+                <div className="flex items-center gap-2">
+                  <Cloud className="w-5 h-5 text-blue-400" />Climate
+                </div>
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold tracking-wider">
-                <div className="flex items-center gap-2"><Mountain className="w-5 h-5 text-green-400" />Terrain</div>
+                <div className="flex items-center gap-2">
+                  <Mountain className="w-5 h-5 text-green-400" />Terrain
+                </div>
               </th>
               <th className="px-6 py-4 text-left text-sm font-semibold tracking-wider">
-                <div className="flex items-center gap-2"><Users className="w-5 h-5 text-pink-400" />Population</div>
+                <div className="flex items-center gap-2">
+                  <Users className="w-5 h-5 text-pink-400" />Population
+                </div>
               </th>
             </tr>
           </thead>
