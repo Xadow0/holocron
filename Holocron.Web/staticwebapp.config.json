@@ -2,7 +2,8 @@
   "routes": [
     {
       "route": "/api/*",
-      "rewrite": "https://lsanwebapp01-ahdhasdffjczcehe.spaincentral-01.azurewebsites.net/api/*"
+      //"rewrite": "https://lsanwebapp01-ahdhasdffjczcehe.spaincentral-01.azurewebsites.net/api/*"
+      "rewrite": "https://localhost:7278/api/*"
     },
     {
       "route": "/*",
