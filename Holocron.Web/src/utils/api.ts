@@ -1,7 +1,7 @@
 import axios from 'axios'
 import type { Planet } from '../types/planets'
 
-const API_BASE_URL = 'https://lsanwebapp01-ahdhasdffjczcehe.spaincentral-01.azurewebsites.net/api' // Backend URL
+const API_BASE_URL = 'https://holocron-container-app.wonderfulhill-24436021.spaincentral.azurecontainerapps.io/api/' // Backend URL
 
 const api = axios.create({
   baseURL: API_BASE_URL,
