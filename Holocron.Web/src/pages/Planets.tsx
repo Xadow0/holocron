@@ -1,16 +1,16 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchPlanets } from '../redux/slices/planetsSlice'
-import type { RootState, AppDispatch } from '../redux/store' // ? Importa AppDispatch
+import type { RootState, AppDispatch } from '../redux/store' 
 import { Orbit, Users, Cloud, Mountain } from 'lucide-react'
 
 const Planets = () => {
-  const dispatch = useDispatch<AppDispatch>() // ? Tipamos useDispatch
+  const dispatch = useDispatch<AppDispatch>() 
 
   const { planets, loading, error } = useSelector((state: RootState) => state.planets)
 
   useEffect(() => {
-    dispatch(fetchPlanets()) // ? Ahora TypeScript acepta el thunk
+    dispatch(fetchPlanets()) 
   }, [dispatch])
 
   if (loading) {
