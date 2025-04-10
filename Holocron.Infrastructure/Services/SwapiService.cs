@@ -43,7 +43,6 @@ namespace Holocron.Infrastructure.Services
             }
             catch (Exception ex)
             {
-                // Manejo de errores básico (puedes mejorarlo según tu necesidad)
                 Console.WriteLine($"Error fetching planets: {ex.Message}");
             }
 
