@@ -1,0 +1,40 @@
+name: Build and Deploy Backend to Azure Container App
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AZURE_CONTAINER_REGISTRY: holocronregistry.azurecr.io
+  IMAGE_NAME: holocron-api
+  RESOURCE_GROUP: lsanwebapp01_group
+  CONTAINER_APP_NAME: holocron-container-app
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Log in to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Log in to ACR
+      run: az acr login --name holocronregistry
+
+    - name: Build and Push Docker image
+      run: |
+        docker build -t $AZURE_CONTAINER_REGISTRY/$IMAGE_NAME:${{ github.run_number }} .
+        docker push $AZURE_CONTAINER_REGISTRY/$IMAGE_NAME:${{ github.run_number }}
+
+    - name: Deploy to Azure Container App
+      run: |
+        az containerapp update \
+          --name $CONTAINER_APP_NAME \
+          --resource-group $RESOURCE_GROUP \
+          --image $AZURE_CONTAINER_REGISTRY/$IMAGE_NAME:${{ github.run_number }}
