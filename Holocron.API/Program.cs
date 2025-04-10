@@ -50,6 +50,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 // CORS configuration with Azure
 var corsOrigins = builder.Configuration["Frontend:CorsOrigins"]?.Split(",") ?? new string[] { };
+corsOrigins = corsOrigins.Concat(new[] { "http://localhost", "http://localhost:3000" }).ToArray();
 
 builder.Services.AddCors(options =>
 {
